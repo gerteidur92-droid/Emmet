@@ -2,50 +2,48 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Emmet AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emmet</title>
 
 <style>
-body{
-    margin:0;
-    background:#05070b;
-    color:white;
-    font-family:Arial,sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    text-align:center;
+body {
+    margin: 0;
+    background: #05070b;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
 }
-#app{width:min(800px,90%);}
-h1{font-size:64px;letter-spacing:10px;}
-#orb{
-    width:180px;
-    height:180px;
-    margin:35px auto;
-    border-radius:50%;
-    background:radial-gradient(circle,#fff,#7dd3fc,#2563eb,#05070b 70%);
-    box-shadow:0 0 40px #38bdf8,0 0 100px #2563eb;
+
+#app {
+    margin-top: 100px;
 }
-.listening{
-    animation:pulse 1s infinite;
+
+#orb {
+    width: 180px;
+    height: 180px;
+    margin: 40px auto;
+    border-radius: 50%;
+    background: radial-gradient(circle, white, #60a5fa, #1d4ed8);
+    box-shadow: 0 0 60px #2563eb;
 }
-@keyframes pulse{
-    50%{transform:scale(1.12);}
+
+button {
+    padding: 15px 25px;
+    margin: 10px;
+    border: 0;
+    border-radius: 12px;
+    font-size: 18px;
+    cursor: pointer;
 }
-#answer{
-    min-height:70px;
-    font-size:22px;
+
+#respuesta {
+    font-size: 22px;
+    min-height: 60px;
 }
-button{
-    padding:14px 25px;
-    margin:8px;
-    border:0;
-    border-radius:12px;
-    font-size:18px;
-    cursor:pointer;
+
+#estado {
+    color: #aaa;
 }
-#state{color:#9ca3af;}
 </style>
 </head>
 
@@ -55,217 +53,62 @@ button{
 
 <h1>EMMET</h1>
 
-<div id="state">Iniciando...</div>
+<div id="estado">Elige un idioma</div>
 
 <div id="orb"></div>
 
-<div id="answer"></div>
+<div id="respuesta"></div>
 
-<div id="language">
-<button onclick="start('es-ES')">🇪🇸 Español</button>
-<button onclick="start('ca-ES')">🟨 Català</button>
-</div>
+<button onclick="iniciar('es-ES')">
+🇪🇸 Español
+</button>
+
+<button onclick="iniciar('ca-ES')">
+🟨 Català
+</button>
 
 </div>
 
 <script>
 
-let lang=null;
+let idioma = null;
 
-const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
+function hablar(texto) {
 
-let recognition;
+    const voz = new SpeechSynthesisUtterance(texto);
 
-const orb=document.getElementById("orb");
-const state=document.getElementById("state");
-const answer=document.getElementById("answer");
-const language=document.getElementById("language");
-
-function speak(text){
+    voz.lang = idioma;
+    voz.pitch = 1.25;
+    voz.rate = 1.08;
 
     speechSynthesis.cancel();
-
-    const u=new SpeechSynthesisUtterance(text);
-
-    u.lang=lang;
-
-    /*
-    Voz juvenil y energética.
-    No intenta copiar exactamente la voz de
-    ningún personaje o actor.
-    */
-
-    u.pitch=1.3;
-    u.rate=1.08;
-    u.volume=1;
-
-    u.onend=()=>{
-        setTimeout(listen,500);
-    };
-
-    speechSynthesis.speak(u);
+    speechSynthesis.speak(voz);
 }
 
-function start(language){
+function iniciar(lang) {
 
-    lang=language;
+    idioma = lang;
 
-    localStorage.setItem("emmetLanguage",lang);
+    if (lang === "ca-ES") {
 
-    document.getElementById("language").style.display="none";
+        document.getElementById("estado").textContent =
+            "Emmet està preparat.";
 
-    if(lang==="ca-ES"){
-        speak("Hola! Soc Emmet. T'escolto.");
-    }else{
-        speak("Hola! Soy Emmet. Te escucho.");
+        document.getElementById("respuesta").textContent =
+            "Hola! Soc Emmet.";
+
+        hablar("Hola! Soc Emmet.");
+
+    } else {
+
+        document.getElementById("estado").textContent =
+            "Emmet está preparado.";
+
+        document.getElementById("respuesta").textContent =
+            "¡Hola! Soy Emmet.";
+
+        hablar("Hola! Soy Emmet.");
     }
-
-    createRecognition();
-}
-
-function createRecognition(){
-
-    if(!SpeechRecognition){
-
-        answer.textContent =
-        "Este navegador no permite reconocimiento de voz.";
-
-        return;
-    }
-
-    recognition=new SpeechRecognition();
-
-    recognition.lang=lang;
-    recognition.continuous=false;
-    recognition.interimResults=false;
-
-    recognition.onstart=()=>{
-
-        orb.classList.add("listening");
-
-        state.textContent =
-        lang==="ca-ES"
-        ?"🎙️ T'escolto..."
-        :"🎙️ Te escucho...";
-    };
-
-    recognition.onresult=(event)=>{
-
-        const text=
-        event.results[0][0].transcript;
-
-        answer.textContent="Tú: "+text;
-
-        process(text);
-    };
-
-    recognition.onerror=()=>{
-
-        orb.classList.remove("listening");
-
-        setTimeout(listen,1500);
-    };
-
-    recognition.onend=()=>{
-
-        orb.classList.remove("listening");
-    };
-}
-
-function listen(){
-
-    if(!recognition || speechSynthesis.speaking)
-        return;
-
-    try{
-        recognition.start();
-    }catch(e){}
-}
-
-function process(text){
-
-    const t=text.toLowerCase();
-
-    if(t.includes("hola") || t.includes("buenas")){
-
-        const r=
-        lang==="ca-ES"
-        ?"Hola! Què tal?"
-        :"¡Hola! ¿Qué tal?";
-
-        answer.textContent=r;
-        speak(r);
-        return;
-    }
-
-    if(t.includes("cómo te llamas") ||
-       t.includes("como te llamas") ||
-       t.includes("qui ets") ||
-       t.includes("com et dius")){
-
-        const r=
-        lang==="ca-ES"
-        ?"Em dic Emmet."
-        :"Me llamo Emmet.";
-
-        answer.textContent=r;
-        speak(r);
-        return;
-    }
-
-    if(t.includes("qué hora") ||
-       t.includes("quina hora")){
-
-        const time=new Date().toLocaleTimeString(
-            lang==="ca-ES" ? "ca-ES":"es-ES",
-            {hour:"2-digit",minute:"2-digit"}
-        );
-
-        const r=
-        lang==="ca-ES"
-        ?"Ara són les "+time
-        :"Ahora son las "+time;
-
-        answer.textContent=r;
-        speak(r);
-        return;
-    }
-
-    /*
-    AQUÍ irá el cerebro de IA real.
-    No inventamos respuestas falsas.
-    */
-
-    const r=
-    lang==="ca-ES"
-    ?"Encara no tinc connectat el meu cervell d'IA."
-    :"Todavía no tengo conectado mi cerebro de IA.";
-
-    answer.textContent=r;
-
-    speak(r);
-}
-
-const saved=localStorage.getItem("emmetLanguage");
-
-if(saved){
-
-    lang=saved;
-
-    language.style.display="none";
-
-    createRecognition();
-
-    setTimeout(()=>{
-
-        if(lang==="ca-ES")
-            speak("Hola! Soc Emmet. T'escolto.");
-        else
-            speak("Hola! Soy Emmet. Te escucho.");
-
-    },800);
 }
 
 </script>
