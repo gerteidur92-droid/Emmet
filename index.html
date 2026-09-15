@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Emmet</title>
 
 <style>
@@ -42,17 +43,21 @@ body {
 .face {
     width: 230px;
     height: 130px;
+
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 35px;
+
     transition: 0.25s;
 }
 
 .eye {
     width: 75px;
     height: 45px;
+
     background: #00eaff;
+
     border-radius: 50%;
 
     box-shadow:
@@ -88,8 +93,13 @@ body {
 }
 
 @keyframes pulse {
-    from { transform: scaleY(0.8); }
-    to { transform: scaleY(1.15); }
+    from {
+        transform: scaleY(0.8);
+    }
+
+    to {
+        transform: scaleY(1.15);
+    }
 }
 
 .talking .eye {
@@ -97,42 +107,65 @@ body {
 }
 
 @keyframes talk {
-    from { transform: scaleY(1); }
-    to { transform: scaleY(0.65); }
+    from {
+        transform: scaleY(1);
+    }
+
+    to {
+        transform: scaleY(0.65);
+    }
 }
 
 .light {
     position: absolute;
+
     width: 12px;
     height: 12px;
+
     border-radius: 50%;
+
     background: #00eaff;
+
     box-shadow: 0 0 15px #00eaff;
+
     bottom: 65px;
 }
 
 .processing .light {
     background: #a855ff;
+
     box-shadow: 0 0 15px #a855ff;
 }
 
 .status {
     position: absolute;
+
     bottom: 25px;
+
     font-size: 13px;
+
     opacity: 0.5;
+
     text-align: center;
+
     width: 100%;
 }
 
 .start {
     position: absolute;
+
     bottom: 45px;
+
     padding: 10px 18px;
+
     border: 1px solid #00eaff;
+
     border-radius: 20px;
+
     background: #050505;
+
     color: #00eaff;
+
     cursor: pointer;
 }
 
@@ -148,14 +181,16 @@ body {
 <div class="emmet">
 
     <div id="face" class="face">
+
         <div class="eye"></div>
         <div class="eye"></div>
+
     </div>
 
     <div id="light" class="light"></div>
 
     <div id="status" class="status">
-        Pulsa el botón para activar Emmet
+        Pulsa para activar Emmet
     </div>
 
     <button id="start" class="start">
@@ -165,6 +200,10 @@ body {
 </div>
 
 <script>
+
+/* =========================
+        EMMET
+========================= */
 
 const face = document.getElementById("face");
 const statusText = document.getElementById("status");
@@ -191,12 +230,17 @@ function sad() {
 }
 
 function blink() {
+
     if (listening) return;
 
     face.className = "face blink";
 
     setTimeout(() => {
-        if (!listening) normal();
+
+        if (!listening) {
+            normal();
+        }
+
     }, 150);
 }
 
@@ -224,7 +268,9 @@ setInterval(() => {
         !face.classList.contains("processing") &&
         !face.classList.contains("talking")
     ) {
+
         blink();
+
     }
 
 }, 3500);
@@ -238,36 +284,97 @@ function speak(text) {
 
     processingFace();
 
-    statusText.textContent = "Pensando...";
+    statusText.textContent =
+        "Pensando...";
 
     window.speechSynthesis.cancel();
 
-    const speech = new SpeechSynthesisUtterance(text);
+    const speech =
+        new SpeechSynthesisUtterance(text);
 
     speech.lang = "es-ES";
+
     speech.rate = 1.05;
+
     speech.pitch = 1.25;
+
     speech.volume = 1;
+
 
     speech.onstart = () => {
 
         talkingFace();
 
-        statusText.textContent = "Hablando...";
+        statusText.textContent =
+            "Hablando...";
 
     };
+
 
     speech.onend = () => {
 
         normal();
 
-        statusText.textContent = "Escuchando...";
+        statusText.textContent =
+            "Escuchando...";
 
-        setTimeout(startListening, 300);
+        setTimeout(() => {
+
+            startListening();
+
+        }, 300);
 
     };
 
+
     window.speechSynthesis.speak(speech);
+
+}
+
+
+/* =========================
+        GOOGLE
+========================= */
+
+function googleSearch(query) {
+
+    const cleanQuery =
+        query
+            .replace(/buscar en google/gi, "")
+            .replace(/busca en google/gi, "")
+            .replace(/buscar en internet/gi, "")
+            .replace(/busca en internet/gi, "")
+            .trim();
+
+
+    if (!cleanQuery) {
+
+        speak(
+            "¿Qué quieres que busque?"
+        );
+
+        return;
+    }
+
+
+    speak(
+        "Buscando en Google " +
+        cleanQuery
+    );
+
+
+    setTimeout(() => {
+
+        const url =
+            "https://www.google.com/search?q=" +
+            encodeURIComponent(cleanQuery);
+
+        window.open(
+            url,
+            "_blank"
+        );
+
+    }, 1200);
 }
 
 
@@ -277,8 +384,26 @@ function speak(text) {
 
 function answer(text) {
 
-    const t = text.toLowerCase().trim();
+    const t =
+        text.toLowerCase().trim();
 
+
+    /* GOOGLE */
+
+    if (
+        t.includes("buscar en google") ||
+        t.includes("busca en google") ||
+        t.includes("buscar en internet") ||
+        t.includes("busca en internet")
+    ) {
+
+        googleSearch(t);
+
+        return;
+    }
+
+
+    /* HOLA */
 
     if (
         t.includes("hola") ||
@@ -287,11 +412,15 @@ function answer(text) {
 
         happy();
 
-        speak("¡Hola! Soy Emmet. ¿Qué hacemos?");
+        speak(
+            "¡Hola! Soy Emmet. ¿Qué hacemos?"
+        );
 
         return;
     }
 
+
+    /* NOMBRE */
 
     if (
         t.includes("cómo te llamas") ||
@@ -300,11 +429,15 @@ function answer(text) {
         t.includes("quien eres")
     ) {
 
-        speak("Me llamo Emmet.");
+        speak(
+            "Me llamo Emmet."
+        );
 
         return;
     }
 
+
+    /* CAPACIDADES */
 
     if (
         t.includes("qué puedes hacer") ||
@@ -312,33 +445,43 @@ function answer(text) {
     ) {
 
         speak(
-            "Puedo escucharte y hablar contigo. Todavía estoy aprendiendo."
+            "Puedo escucharte, hablar contigo y buscar cosas en Google."
         );
 
         return;
     }
 
 
+    /* GRACIAS */
+
     if (t.includes("gracias")) {
 
         happy();
 
-        speak("¡De nada!");
+        speak(
+            "¡De nada!"
+        );
 
         return;
     }
 
+
+    /* ADIÓS */
 
     if (
         t.includes("adiós") ||
         t.includes("adios")
     ) {
 
-        speak("Hasta luego.");
+        speak(
+            "Hasta luego."
+        );
 
         return;
     }
 
+
+    /* RESPUESTA NORMAL */
 
     speak(
         "He escuchado: " +
@@ -358,6 +501,7 @@ function createRecognition() {
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
+
     if (!SpeechRecognition) {
 
         statusText.textContent =
@@ -366,10 +510,15 @@ function createRecognition() {
         return null;
     }
 
-    const rec = new SpeechRecognition();
+
+    const rec =
+        new SpeechRecognition();
+
 
     rec.lang = "es-ES";
+
     rec.continuous = false;
+
     rec.interimResults = false;
 
 
@@ -390,6 +539,13 @@ function createRecognition() {
         const text =
             event.results[0][0].transcript;
 
+
+        console.log(
+            "Has dicho:",
+            text
+        );
+
+
         listening = false;
 
         processingFace();
@@ -397,7 +553,9 @@ function createRecognition() {
         statusText.textContent =
             "Procesando...";
 
+
         answer(text);
+
     };
 
 
@@ -412,13 +570,17 @@ function createRecognition() {
 
         normal();
 
-        if (event.error === "not-allowed") {
+
+        if (
+            event.error === "not-allowed"
+        ) {
 
             statusText.textContent =
-                "Permite el micrófono para usar Emmet.";
+                "Permite el micrófono.";
 
             return;
         }
+
 
         statusText.textContent =
             "No te he escuchado.";
@@ -443,11 +605,15 @@ function createRecognition() {
 
 function startListening() {
 
-    if (!recognition) return;
+    if (!recognition)
+        return;
 
-    if (listening) return;
+    if (listening)
+        return;
 
-    if (window.speechSynthesis.speaking) return;
+    if (window.speechSynthesis.speaking)
+        return;
+
 
     try {
 
@@ -462,23 +628,31 @@ function startListening() {
 
 
 /* =========================
-        ACTIVAR EMMET
+        ACTIVAR
 ========================= */
 
 startButton.onclick = () => {
 
-    startButton.style.display = "none";
+    startButton.style.display =
+        "none";
 
-    recognition = createRecognition();
 
-    if (!recognition) return;
+    recognition =
+        createRecognition();
+
+
+    if (!recognition)
+        return;
+
 
     statusText.textContent =
         "Emmet iniciando...";
 
+
     speak(
         "Hola. Soy Emmet. Ya estoy preparado."
     );
+
 };
 
 </script>
