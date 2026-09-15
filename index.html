@@ -3,150 +3,354 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Emmet</title>
 
+<!-- MAPA -->
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
 <style>
+
 * {
     box-sizing: border-box;
 }
 
 body {
+
     margin: 0;
+
     min-height: 100vh;
+
     background: #050505;
+
     color: white;
+
     font-family: Arial, sans-serif;
 
     display: flex;
+
     flex-direction: column;
+
     justify-content: center;
+
     align-items: center;
-    gap: 25px;
+
+    gap: 20px;
+
 }
 
+
+/* =========================
+   EMMET
+========================= */
+
 #emmet {
+
     width: 330px;
+
     height: 330px;
 
     border-radius: 50%;
+
     background: #000;
+
     border: 3px solid #151515;
 
-    box-shadow: 0 0 35px rgba(0, 220, 255, 0.15);
+    box-shadow:
+        0 0 35px rgba(0,220,255,.15);
 
     display: flex;
+
     justify-content: center;
+
     align-items: center;
+
     gap: 65px;
 
-    transition: 0.3s;
+    transition: .3s;
+
 }
 
+
 .eye {
+
     width: 58px;
+
     height: 100px;
 
     border-radius: 50%;
+
     background: #00eaff;
 
-    box-shadow: 0 0 25px #00eaff;
+    box-shadow:
+        0 0 25px #00eaff;
 
-    transition: 0.2s;
+    transition: .2s;
+
 }
+
 
 .blink {
+
     height: 8px;
+
 }
+
 
 .thinking {
-    box-shadow: 0 0 45px #9b00ff;
+
+    box-shadow:
+        0 0 45px #9b00ff;
+
 }
+
 
 .thinking .eye {
+
     background: #9b00ff;
-    box-shadow: 0 0 30px #9b00ff;
+
+    box-shadow:
+        0 0 30px #9b00ff;
+
 }
 
-.listening .eye {
-    box-shadow: 0 0 40px #00eaff;
-}
 
 .silent {
-    opacity: 0.35;
+
+    opacity: .35;
+
 }
+
 
 #status {
+
     font-size: 16px;
+
     color: #aaa;
+
     text-align: center;
+
     min-height: 22px;
+
 }
 
+
 button {
+
     border: none;
+
     border-radius: 30px;
 
     padding: 15px 25px;
 
     background: #00eaff;
+
     color: #000;
 
     font-size: 16px;
+
     font-weight: bold;
 
     cursor: pointer;
+
 }
 
-button:hover {
-    transform: scale(1.05);
+
+/* =========================
+   MAPA
+========================= */
+
+#mapa {
+
+    display: none;
+
+    position: fixed;
+
+    top: 5vh;
+
+    left: 5vw;
+
+    width: 90vw;
+
+    height: 90vh;
+
+    background: #111;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    z-index: 1000;
+
+    border: 2px solid #00eaff;
+
+    box-shadow:
+        0 0 40px rgba(0,234,255,.35);
+
 }
+
+
+#map {
+
+    width: 100%;
+
+    height: 100%;
+
+}
+
+
+#cerrarMapa {
+
+    position: absolute;
+
+    z-index: 2000;
+
+    top: 15px;
+
+    right: 15px;
+
+    padding: 10px 18px;
+
+    background: #111;
+
+    color: white;
+
+    border: 2px solid #00eaff;
+
+    border-radius: 20px;
+
+    cursor: pointer;
+
+}
+
+
+#mapaTitulo {
+
+    position: absolute;
+
+    z-index: 2000;
+
+    top: 15px;
+
+    left: 15px;
+
+    padding: 10px 18px;
+
+    background: rgba(0,0,0,.75);
+
+    color: white;
+
+    border-radius: 20px;
+
+}
+
 </style>
+
 </head>
 
+
 <body>
+
+
+<!-- =========================
+     EMMET
+========================= -->
 
 <div id="emmet">
 
     <div class="eye"></div>
+
     <div class="eye"></div>
 
 </div>
 
+
 <div id="status">
     Emmet está apagado
 </div>
+
 
 <button id="activar">
     ACTIVAR EMMET
 </button>
 
 
+
+<!-- =========================
+     MAPA
+========================= -->
+
+<div id="mapa">
+
+    <div id="mapaTitulo">
+        📍 Emmet Maps
+    </div>
+
+    <button id="cerrarMapa">
+        ✕ Cerrar
+    </button>
+
+    <div id="map"></div>
+
+</div>
+
+
+
+<!-- LEAFLET -->
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+
 <script>
+
 
 // =====================================================
 // VARIABLES
 // =====================================================
 
-const emmet = document.getElementById("emmet");
-const statusText = document.getElementById("status");
-const boton = document.getElementById("activar");
+const emmet =
+    document.getElementById("emmet");
+
+const statusText =
+    document.getElementById("status");
+
+const boton =
+    document.getElementById("activar");
+
+const mapaVentana =
+    document.getElementById("mapa");
+
+const botonCerrarMapa =
+    document.getElementById("cerrarMapa");
+
 
 let activo = false;
+
 let modoNinja = false;
 
 let hablando = false;
+
 let pensando = false;
 
-let reconocimientoActivo = false;
+let recognition = null;
 
-let ultimoSonido = 0;
-let ultimoDatoAstronomia = 0;
+let mapa = null;
+
+let marcador = null;
+
+let ultimoSonido = Date.now();
 
 const TIEMPO_SIN_SONIDO = 8000;
 
 
 // =====================================================
-// DATOS DE ASTRONOMÍA
+// DATOS ASTRONOMÍA
 // =====================================================
 
 const datosAstronomia = [
@@ -163,13 +367,13 @@ const datosAstronomia = [
 
     "Un dato curioso de la astronomía es que la Vía Láctea y Andrómeda se están acercando entre sí.",
 
-    "Un dato curioso de la astronomía es que algunas estrellas que vemos podrían haber cambiado hace mucho tiempo, pero todavía vemos su luz antigua.",
+    "Un dato curioso de la astronomía es que algunas estrellas que vemos podrían haber cambiado hace mucho tiempo, pero su luz todavía está viajando hacia nosotros.",
 
     "Un dato curioso de la astronomía es que las estrellas de neutrones son objetos extremadamente densos.",
 
-    "Un dato curioso de la astronomía es que un agujero negro puede tener millones o incluso miles de millones de veces la masa del Sol.",
+    "Un dato curioso de la astronomía es que algunos agujeros negros tienen millones o incluso miles de millones de veces la masa del Sol.",
 
-    "Un dato curioso de la astronomía es que Neptuno tarda aproximadamente 165 años terrestres en completar una vuelta alrededor del Sol."
+    "Un dato curioso de la astronomía es que Neptuno tarda aproximadamente 165 años terrestres en dar una vuelta alrededor del Sol."
 
 ];
 
@@ -180,26 +384,31 @@ const datosAstronomia = [
 
 function hablar(texto) {
 
-    if (modoNinja) {
-        return;
-    }
+    if (modoNinja) return;
+
 
     hablando = true;
 
-    // IMPORTANTE:
-    // Mientras Emmet habla, el detector de sonido
-    // no puede activar datos astronómicos.
+    pensando = false;
 
     ultimoSonido = Date.now();
 
+
     emmet.classList.remove("listening");
+
     emmet.classList.add("thinking");
 
-    statusText.textContent = "Emmet está hablando...";
+
+    statusText.textContent =
+        "Emmet está hablando...";
+
 
     speechSynthesis.cancel();
 
-    const voz = new SpeechSynthesisUtterance(texto);
+
+    const voz =
+        new SpeechSynthesisUtterance(texto);
+
 
     voz.lang = "es-ES";
 
@@ -218,15 +427,18 @@ function hablar(texto) {
 
         emmet.classList.remove("thinking");
 
+
         if (!modoNinja) {
 
             statusText.textContent =
                 "Escuchando...";
 
-            // Reiniciamos el contador DESPUÉS
-            // de que Emmet termine de hablar.
 
-            ultimoSonido = Date.now();
+            // Los 8 segundos empiezan
+            // DESPUÉS de terminar de hablar.
+
+            ultimoSonido =
+                Date.now();
 
         }
 
@@ -239,14 +451,16 @@ function hablar(texto) {
 
         pensando = false;
 
-        emmet.classList.remove("thinking");
+        ultimoSonido =
+            Date.now();
 
-        ultimoSonido = Date.now();
+        emmet.classList.remove("thinking");
 
     };
 
 
     speechSynthesis.speak(voz);
+
 }
 
 
@@ -256,18 +470,19 @@ function hablar(texto) {
 
 setInterval(() => {
 
-    if (!activo) {
-        return;
-    }
+    if (!activo) return;
+
 
     const ojos =
         document.querySelectorAll(".eye");
+
 
     ojos.forEach(ojo => {
 
         ojo.classList.add("blink");
 
     });
+
 
     setTimeout(() => {
 
@@ -277,9 +492,10 @@ setInterval(() => {
 
         });
 
-    }, 150);
+    },150);
 
-}, 3500);
+
+},3500);
 
 
 // =====================================================
@@ -288,43 +504,49 @@ setInterval(() => {
 
 async function preguntarGroq(pregunta) {
 
-    if (modoNinja) {
-        return;
-    }
+    if (modoNinja) return;
+
 
     pensando = true;
+
+    ultimoSonido =
+        Date.now();
+
 
     emmet.classList.remove("listening");
 
     emmet.classList.add("thinking");
 
+
     statusText.textContent =
         "Emmet está pensando...";
 
 
-    // Reiniciamos el contador para que
-    // no hable de astronomía durante la respuesta.
-
-    ultimoSonido = Date.now();
-
-
     try {
 
-        const respuesta = await fetch(
-            "/api/groq",
-            {
-                method: "POST",
+        const respuesta =
+            await fetch(
+                "/api/groq",
+                {
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+                    method: "POST",
 
-                body: JSON.stringify({
-                    pregunta: pregunta
-                })
-            }
-        );
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body: JSON.stringify({
+
+                        pregunta:
+                            pregunta
+
+                    })
+
+                }
+            );
 
 
         const datos =
@@ -342,6 +564,7 @@ async function preguntarGroq(pregunta) {
             );
 
             return;
+
         }
 
 
@@ -354,12 +577,15 @@ async function preguntarGroq(pregunta) {
             );
 
             return;
+
         }
 
 
         pensando = false;
 
-        hablar(datos.respuesta);
+        hablar(
+            datos.respuesta
+        );
 
 
     } catch (error) {
@@ -373,11 +599,157 @@ async function preguntarGroq(pregunta) {
         );
 
     }
+
 }
 
 
 // =====================================================
-// PROCESAR VOZ
+// MAPS
+// =====================================================
+
+function abrirMaps() {
+
+    if (modoNinja) return;
+
+
+    mapaVentana.style.display =
+        "block";
+
+
+    statusText.textContent =
+        "Abriendo Maps...";
+
+
+    if (!mapa) {
+
+        mapa =
+            L.map("map")
+            .setView(
+                [40.4168,-3.7038],
+                13
+            );
+
+
+        L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+
+                maxZoom: 19,
+
+                attribution:
+                    '&copy; OpenStreetMap contributors'
+
+            }
+        ).addTo(mapa);
+
+    }
+
+
+    // Pedir ubicación al navegador.
+
+    if (
+        navigator.geolocation
+    ) {
+
+        navigator.geolocation.getCurrentPosition(
+
+            posicion => {
+
+                const lat =
+                    posicion.coords.latitude;
+
+                const lon =
+                    posicion.coords.longitude;
+
+
+                mapa.setView(
+                    [lat,lon],
+                    16
+                );
+
+
+                if (marcador) {
+
+                    marcador
+                        .setLatLng(
+                            [lat,lon]
+                        );
+
+                } else {
+
+                    marcador =
+                        L.marker(
+                            [lat,lon]
+                        )
+                        .addTo(mapa);
+
+                }
+
+
+                marcador.bindPopup(
+                    "📍 Estás aquí"
+                );
+
+
+                marcador.openPopup();
+
+
+                statusText.textContent =
+                    "Ubicación encontrada.";
+
+            },
+
+
+            error => {
+
+                console.log(error);
+
+
+                statusText.textContent =
+                    "No se pudo obtener tu ubicación.";
+
+                hablar(
+                    "No puedo obtener tu ubicación. Comprueba que has permitido el acceso a la ubicación."
+                );
+
+            }
+
+        );
+
+    }
+
+
+    setTimeout(() => {
+
+        mapa.invalidateSize();
+
+    },300);
+
+}
+
+
+// =====================================================
+// CERRAR MAPS
+// =====================================================
+
+function cerrarMaps() {
+
+    mapaVentana.style.display =
+        "none";
+
+
+    statusText.textContent =
+        "Escuchando...";
+
+
+    ultimoSonido =
+        Date.now();
+
+}
+
+
+// =====================================================
+// PROCESAR LO QUE DICE EL USUARIO
 // =====================================================
 
 function procesarTexto(texto) {
@@ -394,9 +766,9 @@ function procesarTexto(texto) {
     );
 
 
-    // -----------------------------------------------
+    // ================================================
     // MODO NINJA
-    // -----------------------------------------------
+    // ================================================
 
     if (
         texto.includes("modo ninja") ||
@@ -411,11 +783,16 @@ function procesarTexto(texto) {
             speechSynthesis.cancel();
 
             hablando = false;
+
             pensando = false;
 
-            emmet.classList.remove("thinking");
+            emmet.classList.remove(
+                "thinking"
+            );
 
-            emmet.classList.add("silent");
+            emmet.classList.add(
+                "silent"
+            );
 
             statusText.textContent =
                 "🥷 Modo ninja";
@@ -424,9 +801,12 @@ function procesarTexto(texto) {
 
             modoNinja = false;
 
-            emmet.classList.remove("silent");
+            emmet.classList.remove(
+                "silent"
+            );
 
-            ultimoSonido = Date.now();
+            ultimoSonido =
+                Date.now();
 
             hablar(
                 "Modo ninja desactivado."
@@ -435,21 +815,79 @@ function procesarTexto(texto) {
         }
 
         return;
+
     }
 
 
-    // -----------------------------------------------
-    // SI ESTÁ EN MODO NINJA
-    // -----------------------------------------------
+    // ================================================
+    // MODO NINJA
+    // ================================================
 
-    if (modoNinja) {
+    if (modoNinja) return;
+
+
+    // ================================================
+    // MAPS
+    // ================================================
+
+    if (
+        texto === "maps" ||
+        texto === "map" ||
+        texto.includes("abre maps") ||
+        texto.includes("abrir maps") ||
+        texto.includes("abre el mapa") ||
+        texto.includes("abrir el mapa") ||
+        texto.includes("enséñame el mapa") ||
+        texto.includes("ensename el mapa")
+    ) {
+
+        abrirMaps();
+
         return;
+
     }
 
 
-    // -----------------------------------------------
+    // ================================================
+    // CERRAR MAPS
+    // ================================================
+
+    if (
+        texto.includes("cierra maps") ||
+        texto.includes("cerrar maps") ||
+        texto.includes("cierra el mapa") ||
+        texto.includes("cerrar el mapa")
+    ) {
+
+        cerrarMaps();
+
+        return;
+
+    }
+
+
+    // ================================================
+    // EMMET SALUDA
+    // ================================================
+
+    if (
+        texto.includes("emmet saluda") ||
+        texto.includes("emmet, saluda") ||
+        texto.includes("emmet saluda")
+    ) {
+
+        hablar(
+            "¡Hola!"
+        );
+
+        return;
+
+    }
+
+
+    // ================================================
     // HOLA
-    // -----------------------------------------------
+    // ================================================
 
     if (
         texto === "hola" ||
@@ -462,17 +900,19 @@ function procesarTexto(texto) {
         );
 
         return;
+
     }
 
 
-    // -----------------------------------------------
+    // ================================================
     // NOMBRE
-    // -----------------------------------------------
+    // ================================================
 
     if (
         texto.includes("cómo te llamas") ||
         texto.includes("como te llamas") ||
-        texto.includes("tu nombre")
+        texto.includes("cuál es tu nombre") ||
+        texto.includes("cual es tu nombre")
     ) {
 
         hablar(
@@ -480,12 +920,13 @@ function procesarTexto(texto) {
         );
 
         return;
+
     }
 
 
-    // -----------------------------------------------
+    // ================================================
     // GRACIAS
-    // -----------------------------------------------
+    // ================================================
 
     if (
         texto.includes("gracias")
@@ -496,12 +937,13 @@ function procesarTexto(texto) {
         );
 
         return;
+
     }
 
 
-    // -----------------------------------------------
+    // ================================================
     // ADIÓS
-    // -----------------------------------------------
+    // ================================================
 
     if (
         texto.includes("adiós") ||
@@ -513,14 +955,18 @@ function procesarTexto(texto) {
         );
 
         return;
+
     }
 
 
-    // -----------------------------------------------
+    // ================================================
     // TODO LO DEMÁS → GROQ
-    // -----------------------------------------------
+    // ================================================
 
-    preguntarGroq(texto);
+    preguntarGroq(
+        texto
+    );
+
 }
 
 
@@ -531,9 +977,6 @@ function procesarTexto(texto) {
 const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
-
-
-let recognition = null;
 
 
 if (SpeechRecognition) {
@@ -556,8 +999,6 @@ if (SpeechRecognition) {
 
     recognition.onstart = () => {
 
-        reconocimientoActivo = true;
-
         if (!modoNinja) {
 
             emmet.classList.add(
@@ -572,65 +1013,49 @@ if (SpeechRecognition) {
     };
 
 
-    recognition.onresult = (event) => {
+    recognition.onresult =
+        event => {
 
-        const ultimoResultado =
-            event.results[
-                event.results.length - 1
-            ];
-
-
-        const texto =
-            ultimoResultado[0]
-            .transcript;
+            const resultado =
+                event.results[
+                    event.results.length - 1
+                ];
 
 
-        // El usuario acaba de hablar.
-        // Reiniciamos el contador de silencio.
-
-        ultimoSonido =
-            Date.now();
+            const texto =
+                resultado[0]
+                .transcript;
 
 
-        if (!modoNinja) {
+            ultimoSonido =
+                Date.now();
 
-            emmet.classList.add(
-                "listening"
+
+            procesarTexto(
+                texto
             );
 
-        }
+        };
 
 
-        procesarTexto(texto);
+    recognition.onerror =
+        event => {
 
-    };
+            console.log(
+                "Error de voz:",
+                event.error
+            );
 
-
-    recognition.onerror = (event) => {
-
-        console.log(
-            "Error de reconocimiento:",
-            event.error
-        );
-
-    };
+        };
 
 
-    recognition.onend = () => {
+    recognition.onend =
+        () => {
 
-        reconocimientoActivo = false;
+            if (!activo) return;
 
-
-        if (
-            activo &&
-            recognition
-        ) {
 
             setTimeout(() => {
-
-                if (!activo) {
-                    return;
-                }
 
                 try {
 
@@ -638,26 +1063,28 @@ if (SpeechRecognition) {
 
                 } catch (e) {}
 
-            }, 500);
+            },500);
 
-        }
-
-    };
+        };
 
 }
 
 
 // =====================================================
-// DETECTOR DE AUDIO
+// DETECTOR DE SONIDO
 // =====================================================
 
-let audioContext = null;
+let audioContext =
+    null;
 
-let analyser = null;
+let analyser =
+    null;
 
-let microphone = null;
+let microphone =
+    null;
 
-let datosAudio = null;
+let datosAudio =
+    null;
 
 
 async function iniciarDetectorAudio() {
@@ -665,9 +1092,10 @@ async function iniciarDetectorAudio() {
     try {
 
         const stream =
-            await navigator.mediaDevices
+            await navigator
+            .mediaDevices
             .getUserMedia({
-                audio: true
+                audio:true
             });
 
 
@@ -676,7 +1104,8 @@ async function iniciarDetectorAudio() {
 
 
         analyser =
-            audioContext.createAnalyser();
+            audioContext
+            .createAnalyser();
 
 
         microphone =
@@ -691,7 +1120,8 @@ async function iniciarDetectorAudio() {
         );
 
 
-        analyser.fftSize = 512;
+        analyser.fftSize =
+            512;
 
 
         datosAudio =
@@ -700,10 +1130,6 @@ async function iniciarDetectorAudio() {
             );
 
 
-        // MUY IMPORTANTE:
-        // El contador empieza AHORA.
-        // Por tanto, no habrá dato instantáneo.
-
         ultimoSonido =
             Date.now();
 
@@ -711,12 +1137,9 @@ async function iniciarDetectorAudio() {
         detectarSonido();
 
 
-    } catch (error) {
+    } catch(error) {
 
-        console.log(
-            "No se pudo activar el micrófono:",
-            error
-        );
+        console.log(error);
 
         statusText.textContent =
             "No se pudo activar el micrófono.";
@@ -727,14 +1150,12 @@ async function iniciarDetectorAudio() {
 
 
 // =====================================================
-// DETECTAR SONIDO
+// DETECTAR SILENCIO
 // =====================================================
 
 function detectarSonido() {
 
-    if (!activo) {
-        return;
-    }
+    if (!activo) return;
 
 
     if (!analyser) {
@@ -744,6 +1165,7 @@ function detectarSonido() {
         );
 
         return;
+
     }
 
 
@@ -762,7 +1184,8 @@ function detectarSonido() {
     ) {
 
         const valor =
-            (datosAudio[i] - 128) / 128;
+            (datosAudio[i] - 128)
+            / 128;
 
 
         suma +=
@@ -773,24 +1196,14 @@ function detectarSonido() {
 
     const volumen =
         Math.sqrt(
-            suma / datosAudio.length
+            suma /
+            datosAudio.length
         );
 
-
-    // -----------------------------------------------
-    // UMBRAL DE SONIDO
-    // -----------------------------------------------
-
-    // Un valor pequeño para evitar
-    // que el ruido ambiente active Emmet.
 
     const HAY_SONIDO =
         volumen > 0.035;
 
-
-    // -----------------------------------------------
-    // SI HAY SONIDO
-    // -----------------------------------------------
 
     if (
         HAY_SONIDO &&
@@ -804,28 +1217,14 @@ function detectarSonido() {
     }
 
 
-    // -----------------------------------------------
-    // MODO NINJA
-    // -----------------------------------------------
+    // Nada de datos mientras
+    // Emmet habla o piensa.
 
-    if (modoNinja) {
-
-        requestAnimationFrame(
-            detectarSonido
-        );
-
-        return;
-    }
-
-
-    // -----------------------------------------------
-    // EMMET HABLANDO
-    // -----------------------------------------------
-
-    if (hablando) {
-
-        // El sonido de la propia voz
-        // NO cuenta.
+    if (
+        modoNinja ||
+        hablando ||
+        pensando
+    ) {
 
         ultimoSonido =
             Date.now();
@@ -835,67 +1234,36 @@ function detectarSonido() {
         );
 
         return;
+
     }
 
-
-    // -----------------------------------------------
-    // EMMET PENSANDO
-    // -----------------------------------------------
-
-    if (pensando) {
-
-        ultimoSonido =
-            Date.now();
-
-        requestAnimationFrame(
-            detectarSonido
-        );
-
-        return;
-    }
-
-
-    // -----------------------------------------------
-    // 8 SEGUNDOS REALES SIN SONIDO
-    // -----------------------------------------------
 
     const tiempoSinSonido =
-        Date.now() -
-        ultimoSonido;
+        Date.now()
+        - ultimoSonido;
 
+
+    // EXACTAMENTE DESPUÉS DE 8 SEGUNDOS
 
     if (
         tiempoSinSonido >=
         TIEMPO_SIN_SONIDO
     ) {
 
-
-        // Evita que el dato se repita
-        // inmediatamente.
-
-        ultimoDatoAstronomia =
+        ultimoSonido =
             Date.now();
 
 
-        const numero =
+        const indice =
             Math.floor(
                 Math.random() *
                 datosAstronomia.length
             );
 
 
-        const dato =
-            datosAstronomia[numero];
-
-
-        // Reiniciamos el contador ANTES
-        // de hablar.
-
-        ultimoSonido =
-            Date.now();
-
-
-        hablar(dato);
+        hablar(
+            datosAstronomia[indice]
+        );
 
     }
 
@@ -915,9 +1283,7 @@ boton.addEventListener(
     "click",
     async () => {
 
-        if (activo) {
-            return;
-        }
+        if (activo) return;
 
 
         activo = true;
@@ -931,12 +1297,8 @@ boton.addEventListener(
             "Activando Emmet...";
 
 
-        // Primero activamos el micrófono.
-
         await iniciarDetectorAudio();
 
-
-        // Después activamos reconocimiento.
 
         if (recognition) {
 
@@ -944,7 +1306,7 @@ boton.addEventListener(
 
                 recognition.start();
 
-            } catch (error) {
+            } catch(error) {
 
                 console.log(error);
 
@@ -960,16 +1322,21 @@ boton.addEventListener(
         }
 
 
-        // IMPORTANTE:
-        // Emmet habla primero.
-        // Después de terminar comienza
-        // el contador de 8 segundos.
-
         hablar(
             "Hola. Soy Emmet. Ya estoy conectado."
         );
 
     }
+);
+
+
+// =====================================================
+// BOTÓN CERRAR MAPA
+// =====================================================
+
+botonCerrarMapa.addEventListener(
+    "click",
+    cerrarMaps
 );
 
 </script>
