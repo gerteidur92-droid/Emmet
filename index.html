@@ -31,6 +31,7 @@ body {
     border-radius: 50%;
     background: #090909;
     border: 4px solid #202020;
+
     box-shadow:
         0 0 25px rgba(0,255,255,0.25),
         inset 0 0 35px #000;
@@ -154,6 +155,7 @@ body {
 
 .processing .light {
     background: #a855ff;
+
     box-shadow: 0 0 15px #a855ff;
 }
 
@@ -173,7 +175,7 @@ body {
     width: 100%;
 }
 
-/* BOTÓN DE SEGURIDAD */
+/* BOTÓN */
 
 .start {
     position: absolute;
@@ -244,21 +246,15 @@ let listening = false;
 ========================= */
 
 function normal() {
-
     face.className = "face";
-
 }
 
 function happy() {
-
     face.className = "face happy";
-
 }
 
 function sad() {
-
     face.className = "face sad";
-
 }
 
 function blink() {
@@ -266,29 +262,21 @@ function blink() {
     face.className = "face blink";
 
     setTimeout(() => {
-
         normal();
-
     }, 150);
 
 }
 
 function listeningFace() {
-
     face.className = "face listening";
-
 }
 
 function processingFace() {
-
     face.className = "face processing";
-
 }
 
 function talkingFace() {
-
     face.className = "face talking";
-
 }
 
 
@@ -323,7 +311,8 @@ function speak(text) {
 
     window.speechSynthesis.cancel();
 
-    const speech = new SpeechSynthesisUtterance(text);
+    const speech =
+        new SpeechSynthesisUtterance(text);
 
     speech.lang = "es-ES";
 
@@ -334,7 +323,9 @@ function speak(text) {
     speech.onstart = () => {
 
         talkingFace();
-        statusText.textContent = "Hablando...";
+
+        statusText.textContent =
+            "Hablando...";
 
     };
 
@@ -342,7 +333,8 @@ function speak(text) {
 
         normal();
 
-        statusText.textContent = "Escuchando...";
+        statusText.textContent =
+            "Escuchando...";
 
         startListening();
 
@@ -359,7 +351,8 @@ function speak(text) {
 
 function answer(text) {
 
-    const t = text.toLowerCase().trim();
+    const t =
+        text.toLowerCase().trim();
 
 
     /* HOLA */
@@ -371,7 +364,9 @@ function answer(text) {
 
         happy();
 
-        speak("¡Hola! Soy Emmet. ¿Qué hacemos?");
+        speak(
+            "¡Hola! Soy Emmet. ¿Qué hacemos?"
+        );
 
         return;
 
@@ -387,7 +382,9 @@ function answer(text) {
         t.includes("quien eres")
     ) {
 
-        speak("Me llamo Emmet.");
+        speak(
+            "Me llamo Emmet."
+        );
 
         return;
 
@@ -402,7 +399,7 @@ function answer(text) {
     ) {
 
         speak(
-            "Puedo escucharte, hablar contigo, responder preguntas y ayudarte a buscar cosas en Google."
+            "Puedo escucharte y hablar contigo."
         );
 
         return;
@@ -416,7 +413,9 @@ function answer(text) {
 
         happy();
 
-        speak("¡De nada!");
+        speak(
+            "¡De nada!"
+        );
 
         return;
 
@@ -430,63 +429,9 @@ function answer(text) {
         t.includes("adios")
     ) {
 
-        speak("Hasta luego.");
-
-        return;
-
-    }
-
-
-    /* BÚSQUEDA */
-
-    if (
-        t.startsWith("busca ") ||
-        t.startsWith("buscar ")
-    ) {
-
-        let query = t
-            .replace(/^busca /, "")
-            .replace(/^buscar /, "");
-
-        speak("Buscando " + query);
-
-        setTimeout(() => {
-
-            window.open(
-                "https://www.google.com/search?q=" +
-                encodeURIComponent(query),
-                "_blank"
-            );
-
-        }, 1000);
-
-        return;
-
-    }
-
-
-    /* EMET BUSCA */
-
-    if (
-        t.startsWith("emmet busca ")
-    ) {
-
-        let query = t.replace(
-            "emmet busca ",
-            ""
+        speak(
+            "Hasta luego."
         );
-
-        speak("Buscando " + query);
-
-        setTimeout(() => {
-
-            window.open(
-                "https://www.google.com/search?q=" +
-                encodeURIComponent(query),
-                "_blank"
-            );
-
-        }, 1000);
 
         return;
 
@@ -496,8 +441,9 @@ function answer(text) {
     /* RESPUESTA POR DEFECTO */
 
     speak(
-        "He escuchado: " + text +
-        ". Todavía estoy aprendiendo, pero puedo ayudarte."
+        "He escuchado: " +
+        text +
+        ". Todavía estoy aprendiendo."
     );
 
 }
@@ -513,6 +459,7 @@ function createRecognition() {
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
+
     if (!SpeechRecognition) {
 
         statusText.textContent =
@@ -523,7 +470,9 @@ function createRecognition() {
     }
 
 
-    const rec = new SpeechRecognition();
+    const rec =
+        new SpeechRecognition();
+
 
     rec.lang = "es-ES";
 
@@ -549,7 +498,10 @@ function createRecognition() {
         const text =
             event.results[0][0].transcript;
 
-        console.log("Has dicho:", text);
+        console.log(
+            "Has dicho:",
+            text
+        );
 
         listening = false;
 
@@ -604,11 +556,14 @@ function createRecognition() {
 
 function startListening() {
 
-    if (!recognition) return;
+    if (!recognition)
+        return;
 
-    if (listening) return;
+    if (listening)
+        return;
 
-    if (window.speechSynthesis.speaking) return;
+    if (window.speechSynthesis.speaking)
+        return;
 
 
     try {
@@ -628,13 +583,15 @@ function startListening() {
         INICIO
 ========================= */
 
-recognition = createRecognition();
+recognition =
+    createRecognition();
 
 
 if (recognition) {
 
     statusText.textContent =
         "Emmet preparado";
+
 
     setTimeout(() => {
 
@@ -646,7 +603,8 @@ if (recognition) {
 
 } else {
 
-    startButton.style.display = "block";
+    startButton.style.display =
+        "block";
 
 }
 
@@ -657,9 +615,11 @@ if (recognition) {
 
 startButton.onclick = () => {
 
-    startButton.style.display = "none";
+    startButton.style.display =
+        "none";
 
-    recognition = createRecognition();
+    recognition =
+        createRecognition();
 
     startListening();
 
