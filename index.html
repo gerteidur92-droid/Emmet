@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
 <title>Emmet</title>
 
 <link
-rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 />
 
 <style>
@@ -17,12 +22,21 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     box-sizing: border-box;
 }
 
+html,
 body {
     margin: 0;
-    min-height: 100vh;
+    width: 100%;
+    height: 100%;
+}
+
+body {
     background: #050505;
     color: white;
-    font-family: Arial, sans-serif;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
     display: flex;
     justify-content: center;
@@ -33,11 +47,14 @@ body {
 
 #contenedor {
     text-align: center;
+    width: 100%;
 }
 
 #emmet {
     width: 300px;
     height: 300px;
+
+    margin: auto;
 
     background: #000;
 
@@ -45,8 +62,8 @@ body {
     border-radius: 50%;
 
     box-shadow:
-        0 0 30px rgba(0, 255, 255, 0.12),
-        inset 0 0 30px rgba(0, 255, 255, 0.04);
+        0 0 30px rgba(0,255,255,0.12),
+        inset 0 0 30px rgba(0,255,255,0.04);
 
     display: flex;
     justify-content: center;
@@ -54,8 +71,11 @@ body {
 
     gap: 45px;
 
-    position: relative;
+    transition: 0.25s;
 }
+
+
+/* OJOS */
 
 .ojo {
     width: 55px;
@@ -63,20 +83,39 @@ body {
 
     background: #00ffff;
 
-    border-radius: 50%;
+    /*
+       Parte superior plana.
+       Parte inferior redondeada.
+    */
+
+    border-radius:
+        0
+        0
+        50%
+        50%;
 
     box-shadow:
         0 0 15px #00ffff,
-        0 0 35px rgba(0, 255, 255, 0.6);
+        0 0 35px rgba(0,255,255,0.55);
 
     transition: 0.2s;
 }
 
+
+/* ESTADO */
+
 #estado {
     margin-top: 25px;
+
     color: #00ffff;
+
     font-size: 18px;
+
+    min-height: 22px;
 }
+
+
+/* BOTÓN */
 
 button {
     margin-top: 20px;
@@ -84,13 +123,16 @@ button {
     padding: 13px 22px;
 
     border: none;
+
     border-radius: 12px;
 
     background: #00ffff;
-    color: black;
+
+    color: #000;
+
+    font-size: 16px;
 
     font-weight: bold;
-    font-size: 16px;
 
     cursor: pointer;
 }
@@ -99,48 +141,74 @@ button:active {
     transform: scale(0.96);
 }
 
-/* Animaciones */
+
+/* ESCUCHANDO */
 
 .escuchando .ojo {
-    animation: escuchar 1s infinite alternate;
+    animation:
+        escuchar
+        1s
+        infinite
+        alternate;
 }
+
+
+/* PENSANDO */
 
 .pensando .ojo {
     background: #9b00ff;
 
     box-shadow:
         0 0 20px #9b00ff,
-        0 0 40px rgba(155, 0, 255, 0.7);
+        0 0 40px rgba(155,0,255,0.7);
 }
 
+
+/* HABLANDO */
+
 .hablando .ojo {
-    animation: hablar 0.25s infinite alternate;
+    animation:
+        hablar
+        0.25s
+        infinite
+        alternate;
 }
+
+
+/* NINJA */
 
 .ninja .ojo {
     opacity: 0.15;
     box-shadow: none;
 }
 
+
+/* ANIMACIONES */
+
 @keyframes escuchar {
+
     from {
         transform: scaleY(1);
     }
 
     to {
-        transform: scaleY(0.75);
+        transform: scaleY(0.72);
     }
+
 }
 
 @keyframes hablar {
+
     from {
         transform: scaleY(0.8);
     }
 
     to {
-        transform: scaleY(1.1);
+        transform: scaleY(1.08);
     }
+
 }
+
 
 /* MAPA */
 
@@ -169,16 +237,14 @@ button:active {
 
     z-index: 1001;
 
+    margin: 0;
+
     background: white;
     color: black;
-
-    border: none;
 
     padding: 12px 16px;
 
     border-radius: 10px;
-
-    font-weight: bold;
 }
 
 #tituloMapa {
@@ -189,7 +255,8 @@ button:active {
 
     z-index: 1001;
 
-    background: rgba(0,0,0,0.8);
+    background:
+        rgba(0,0,0,0.8);
 
     padding: 10px 15px;
 
@@ -198,29 +265,54 @@ button:active {
     color: white;
 }
 
+
+/* MÓVIL */
+
+@media (max-width: 500px) {
+
+    #emmet {
+        width: 250px;
+        height: 250px;
+        gap: 35px;
+    }
+
+    .ojo {
+        width: 48px;
+        height: 73px;
+    }
+
+}
+
 </style>
+
 </head>
 
+
 <body>
+
 
 <div id="contenedor">
 
     <div id="emmet">
 
         <div class="ojo"></div>
+
         <div class="ojo"></div>
 
     </div>
 
+
     <div id="estado">
         Emmet
     </div>
+
 
     <button id="activar">
         ACTIVAR EMMET
     </button>
 
 </div>
+
 
 
 <!-- MAPA -->
@@ -240,12 +332,17 @@ button:active {
 </div>
 
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
 
 <script>
 
 /* =====================================================
-   CONFIGURACIÓN
+   VARIABLES
 ===================================================== */
 
 const estado =
@@ -256,6 +353,7 @@ const emmet =
 
 const boton =
     document.getElementById("activar");
+
 
 let reconocimiento = null;
 
@@ -269,13 +367,11 @@ let modoNinja = false;
 
 let mapa = null;
 
-let mapaAbierto = false;
-
 let temporizadorSilencio = null;
 
 
 /* =====================================================
-   ESTADO VISUAL
+   ESTADOS
 ===================================================== */
 
 function estadoNormal() {
@@ -291,70 +387,76 @@ function estadoEscuchando() {
 
     if (modoNinja) return;
 
-    emmet.className = "escuchando";
+    emmet.className =
+        "escuchando";
 
-    estado.textContent = "Escuchando";
+    estado.textContent =
+        "Escuchando";
 
 }
 
 
 function estadoPensando() {
 
-    emmet.className = "pensando";
+    emmet.className =
+        "pensando";
 
-    estado.textContent = "Pensando...";
+    estado.textContent =
+        "Pensando...";
 
 }
 
 
 function estadoHablando() {
 
-    emmet.className = "hablando";
+    emmet.className =
+        "hablando";
 
-    estado.textContent = "Hablando...";
+    estado.textContent =
+        "Hablando...";
 
 }
 
 
 /* =====================================================
-   VOZ DE EMMET
+   VOZ
 ===================================================== */
-
-/*
-   Usamos la voz TTS del dispositivo.
-
-   La configuramos para sonar más sintética:
-   - velocidad ligeramente rápida
-   - tono algo grave
-   - volumen alto
-
-   No es una copia exacta de PELOPS 2.
-*/
 
 function obtenerVoz() {
 
     const voces =
         speechSynthesis.getVoices();
 
-    if (!voces.length) return null;
+    if (!voces.length)
+        return null;
 
     return (
-        voces.find(v =>
-            v.lang === "es-ES"
+
+        voces.find(
+            v => v.lang === "es-ES"
         )
+
         ||
-        voces.find(v =>
-            v.lang.startsWith("es")
+
+        voces.find(
+            v => v.lang.startsWith("es")
         )
+
         ||
+
         voces[0]
+
     );
+
 }
 
 
-speechSynthesis.onvoiceschanged = () => {
-    speechSynthesis.getVoices();
-};
+speechSynthesis.onvoiceschanged =
+    () => {
+
+        speechSynthesis.getVoices();
+
+    };
 
 
 function hablar(texto) {
@@ -362,13 +464,18 @@ function hablar(texto) {
     return new Promise(resolve => {
 
         if (!texto) {
+
             resolve();
+
             return;
+
         }
+
 
         hablando = true;
 
         estadoHablando();
+
 
         if (reconocimiento) {
 
@@ -378,61 +485,86 @@ function hablar(texto) {
 
         }
 
+
         speechSynthesis.cancel();
 
+
         const frase =
-            new SpeechSynthesisUtterance(texto);
+            new SpeechSynthesisUtterance(
+                texto
+            );
+
+
+        /*
+           Voz más aguda.
+        */
 
         frase.lang = "es-ES";
 
-        frase.rate = 1.08;
+        frase.rate = 1.10;
 
-        frase.pitch = 0.75;
+        frase.pitch = 1.25;
 
         frase.volume = 1;
 
+
         const voz =
             obtenerVoz();
+
 
         if (voz) {
             frase.voice = voz;
         }
 
-        frase.onend = () => {
 
-            hablando = false;
+        frase.onend =
+            () => {
 
-            estadoNormal();
+                hablando = false;
 
-            if (emmetActivo &&
-                !modoNinja) {
+                estadoNormal();
 
-                iniciarEscucha();
 
-            }
+                if (
+                    emmetActivo &&
+                    !modoNinja
+                ) {
 
-            iniciarTemporizadorSilencio();
+                    iniciarEscucha();
 
-            resolve();
+                }
 
-        };
 
-        frase.onerror = () => {
+                iniciarTemporizadorSilencio();
 
-            hablando = false;
 
-            estadoNormal();
+                resolve();
 
-            if (emmetActivo &&
-                !modoNinja) {
+            };
 
-                iniciarEscucha();
 
-            }
+        frase.onerror =
+            () => {
 
-            resolve();
+                hablando = false;
 
-        };
+                estadoNormal();
+
+
+                if (
+                    emmetActivo &&
+                    !modoNinja
+                ) {
+
+                    iniciarEscucha();
+
+                }
+
+
+                resolve();
+
+            };
+
 
         speechSynthesis.speak(frase);
 
@@ -455,115 +587,149 @@ if (SpeechRecognition) {
     reconocimiento =
         new SpeechRecognition();
 
-    reconocimiento.lang = "es-ES";
 
-    reconocimiento.continuous = false;
-
-    reconocimiento.interimResults = false;
-
-    reconocimiento.maxAlternatives = 1;
+    reconocimiento.lang =
+        "es-ES";
 
 
-    reconocimiento.onstart = () => {
-
-        if (!hablando &&
-            !pensando &&
-            !modoNinja) {
-
-            estadoEscuchando();
-
-        }
-
-    };
+    reconocimiento.continuous =
+        false;
 
 
-    reconocimiento.onresult = async event => {
-
-        detenerTemporizadorSilencio();
-
-        const resultado =
-            event.results[
-                event.results.length - 1
-            ];
-
-        const texto =
-            resultado[0].transcript
-                .trim();
-
-        if (!texto) {
-
-            iniciarEscucha();
-
-            return;
-
-        }
-
-        console.log(
-            "Usuario:",
-            texto
-        );
-
-        await procesarTexto(texto);
-
-    };
+    reconocimiento.interimResults =
+        false;
 
 
-    reconocimiento.onerror = event => {
+    reconocimiento.maxAlternatives =
+        3;
 
-        console.log(
-            "Error de reconocimiento:",
-            event.error
-        );
 
-        if (
-            event.error === "not-allowed" ||
-            event.error === "service-not-allowed"
-        ) {
+    reconocimiento.onstart =
+        () => {
 
-            estado.textContent =
-                "Micrófono bloqueado";
+            if (
+                !hablando &&
+                !pensando &&
+                !modoNinja
+            ) {
 
-            hablar(
-                "Necesito permiso para usar el micrófono."
+                estadoEscuchando();
+
+            }
+
+        };
+
+
+    reconocimiento.onresult =
+        async event => {
+
+            detenerTemporizadorSilencio();
+
+
+            const resultado =
+                event.results[
+                    event.results.length - 1
+                ];
+
+
+            const texto =
+                resultado[0]
+                    .transcript
+                    .trim();
+
+
+            if (!texto) {
+
+                iniciarEscucha();
+
+                return;
+
+            }
+
+
+            console.log(
+                "Emmet escuchó:",
+                texto
             );
 
-            return;
 
-        }
-
-        if (
-            emmetActivo &&
-            !hablando &&
-            !modoNinja
-        ) {
-
-            setTimeout(
-                iniciarEscucha,
-                500
+            await procesarTexto(
+                texto
             );
 
-        }
-
-    };
+        };
 
 
-    reconocimiento.onend = () => {
+    reconocimiento.onerror =
+        event => {
 
-        if (
-            emmetActivo &&
-            !hablando &&
-            !pensando &&
-            !modoNinja
-        ) {
-
-            setTimeout(
-                iniciarEscucha,
-                300
+            console.log(
+                "Reconocimiento:",
+                event.error
             );
 
-        }
 
-    };
+            if (
+                event.error ===
+                "not-allowed"
+            ) {
+
+                estado.textContent =
+                    "Micrófono bloqueado";
+
+                return;
+
+            }
+
+
+            if (
+                event.error ===
+                "service-not-allowed"
+            ) {
+
+                estado.textContent =
+                    "Voz no permitida";
+
+                return;
+
+            }
+
+
+            if (
+                emmetActivo &&
+                !hablando &&
+                !pensando &&
+                !modoNinja
+            ) {
+
+                setTimeout(
+                    iniciarEscucha,
+                    500
+                );
+
+            }
+
+        };
+
+
+    reconocimiento.onend =
+        () => {
+
+            if (
+                emmetActivo &&
+                !hablando &&
+                !pensando &&
+                !modoNinja
+            ) {
+
+                setTimeout(
+                    iniciarEscucha,
+                    300
+                );
+
+            }
+
+        };
 
 }
 
@@ -574,13 +740,18 @@ if (SpeechRecognition) {
 
 function iniciarEscucha() {
 
-    if (!emmetActivo) return;
+    if (!emmetActivo)
+        return;
 
-    if (hablando) return;
+    if (hablando)
+        return;
 
-    if (pensando) return;
+    if (pensando)
+        return;
 
-    if (modoNinja) return;
+    if (modoNinja)
+        return;
+
 
     if (!reconocimiento) {
 
@@ -591,6 +762,7 @@ function iniciarEscucha() {
 
     }
 
+
     try {
 
         reconocimiento.start();
@@ -598,8 +770,7 @@ function iniciarEscucha() {
     } catch(e) {
 
         console.log(
-            "No se pudo iniciar:",
-            e
+            "Escucha ya iniciada."
         );
 
     }
@@ -608,79 +779,114 @@ function iniciarEscucha() {
 
 
 /* =====================================================
-   PROCESAR LO QUE DICE EL USUARIO
+   NORMALIZAR TEXTO
+===================================================== */
+
+function normalizar(texto) {
+
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+        .replace(
+            /[.,!?¿¡]/g,
+            ""
+        )
+        .trim();
+
+}
+
+
+/* =====================================================
+   PROCESAR TEXTO
 ===================================================== */
 
 async function procesarTexto(texto) {
 
     const t =
-        texto
-            .toLowerCase()
-            .trim();
+        normalizar(texto);
 
 
-    /* =========================================
-       MODO NINJA
-    ========================================= */
-
-    if (
-        t.includes("modo ninja") ||
-        t.includes("modo silencioso") ||
-        t.includes("silencio emmet")
-    ) {
-
-        if (!modoNinja) {
-
-            modoNinja = true;
-
-            if (reconocimiento) {
-
-                try {
-                    reconocimiento.abort();
-                } catch(e) {}
-
-            }
-
-            speechSynthesis.cancel();
-
-            emmet.className =
-                "ninja";
-
-            estado.textContent =
-                "Modo ninja";
-
-            return;
-
-        }
-
-    }
+    console.log(
+        "Comando:",
+        t
+    );
 
 
-    /* =========================================
-       SALIR DEL MODO NINJA
-    ========================================= */
+    /* SALIR DEL NINJA */
 
     if (
         modoNinja &&
         (
             t.includes("modo ninja") ||
             t.includes("desactiva ninja") ||
-            t.includes("sal de ninja")
+            t.includes("desactivar ninja") ||
+            t.includes("sal de ninja") ||
+            t.includes("salir del modo ninja") ||
+            t.includes("quita el modo ninja")
         )
     ) {
 
         modoNinja = false;
 
-        estadoNormal();
+        emmet.className = "";
+
+        estado.textContent =
+            "Emmet";
+
 
         await hablar(
             "Modo ninja desactivado."
         );
 
+
         return;
 
     }
 
+
+    /* ACTIVAR NINJA */
+
+    if (
+        !modoNinja &&
+        (
+            t.includes("modo ninja") ||
+            t.includes("modo silencioso") ||
+            t.includes("silencio emmet")
+        )
+    ) {
+
+        modoNinja = true;
+
+
+        if (reconocimiento) {
+
+            try {
+                reconocimiento.abort();
+            } catch(e) {}
+
+        }
+
+
+        speechSynthesis.cancel();
+
+
+        emmet.className =
+            "ninja";
+
+        estado.textContent =
+            "Modo ninja";
+
+
+        return;
+
+    }
+
+
+    /* IGNORAR TODO EN NINJA */
 
     if (modoNinja) {
 
@@ -689,35 +895,51 @@ async function procesarTexto(texto) {
     }
 
 
-    /* =========================================
-       EMMET SALUDA
-    ========================================= */
+    /* EMMET SALUDA */
 
     if (
-        t.includes("emmet saluda") ||
-        t.includes("emmet, saluda")
+        t.includes("emmet saluda")
     ) {
 
-        await hablar("Hola");
+        await hablar(
+            "Hola"
+        );
 
         return;
 
     }
 
 
-    /* =========================================
-       MAPS
-    ========================================= */
+    /* MAPS */
 
     if (
         t === "maps" ||
         t === "map" ||
+        t === "mapa" ||
+        t === "mapas" ||
+
         t.includes("abre maps") ||
         t.includes("abrir maps") ||
+
+        t.includes("abre map") ||
+        t.includes("abrir map") ||
+
+        t.includes("abre mapa") ||
+        t.includes("abrir mapa") ||
+
+        t.includes("abre mapas") ||
+        t.includes("abrir mapas") ||
+
+        t.includes("ensename el mapa") ||
+        t.includes("muestrame el mapa") ||
+
+        t.includes("quiero ver el mapa") ||
+
         t.includes("abre el mapa") ||
         t.includes("abrir el mapa") ||
-        t.includes("enséñame el mapa") ||
-        t.includes("enseñame el mapa")
+
+        t.includes("abre el maps") ||
+        t.includes("abrir el maps")
     ) {
 
         abrirMaps();
@@ -727,13 +949,18 @@ async function procesarTexto(texto) {
     }
 
 
-    /* =========================================
-       CERRAR MAPS
-    ========================================= */
+    /* CERRAR MAPS */
 
     if (
         t.includes("cierra maps") ||
         t.includes("cerrar maps") ||
+
+        t.includes("cierra map") ||
+        t.includes("cerrar map") ||
+
+        t.includes("cierra mapa") ||
+        t.includes("cerrar mapa") ||
+
         t.includes("cierra el mapa") ||
         t.includes("cerrar el mapa")
     ) {
@@ -745,9 +972,7 @@ async function procesarTexto(texto) {
     }
 
 
-    /* =========================================
-       SALUDOS
-    ========================================= */
+    /* SALUDOS */
 
     if (
         t === "hola" ||
@@ -756,7 +981,7 @@ async function procesarTexto(texto) {
     ) {
 
         await hablar(
-            "¡Hola! Soy Emmet."
+            "Hola. Soy Emmet."
         );
 
         return;
@@ -764,14 +989,10 @@ async function procesarTexto(texto) {
     }
 
 
-    /* =========================================
-       NOMBRE
-    ========================================= */
+    /* NOMBRE */
 
     if (
-        t.includes("cómo te llamas") ||
         t.includes("como te llamas") ||
-        t.includes("quién eres") ||
         t.includes("quien eres")
     ) {
 
@@ -784,9 +1005,7 @@ async function procesarTexto(texto) {
     }
 
 
-    /* =========================================
-       GRACIAS
-    ========================================= */
+    /* GRACIAS */
 
     if (
         t.includes("gracias")
@@ -801,12 +1020,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* =========================================
-       ADIÓS
-    ========================================= */
+    /* ADIÓS */
 
     if (
-        t === "adiós" ||
         t === "adios" ||
         t.includes("hasta luego")
     ) {
@@ -820,11 +1036,11 @@ async function procesarTexto(texto) {
     }
 
 
-    /* =========================================
-       GROQ
-    ========================================= */
+    /* GROQ */
 
-    await preguntarGroq(texto);
+    await preguntarGroq(
+        texto
+    );
 
 }
 
@@ -833,7 +1049,9 @@ async function procesarTexto(texto) {
    GROQ
 ===================================================== */
 
-async function preguntarGroq(pregunta) {
+async function preguntarGroq(
+    pregunta
+) {
 
     pensando = true;
 
@@ -862,10 +1080,11 @@ async function preguntarGroq(pregunta) {
                             "application/json"
                     },
 
-                    body: JSON.stringify({
-                        pregunta:
-                            pregunta
-                    })
+                    body:
+                        JSON.stringify({
+                            pregunta:
+                                pregunta
+                        })
                 }
             );
 
@@ -880,25 +1099,29 @@ async function preguntarGroq(pregunta) {
                 datos
             );
 
+
             pensando = false;
+
 
             await hablar(
                 "Ha ocurrido un error con mi conexión."
             );
+
 
             return;
 
         }
 
 
-        const texto =
+        const respuestaTexto =
             datos.respuesta;
 
 
         pensando = false;
 
+
         await hablar(
-            texto
+            respuestaTexto
         );
 
 
@@ -908,7 +1131,9 @@ async function preguntarGroq(pregunta) {
             error
         );
 
+
         pensando = false;
+
 
         await hablar(
             "No puedo conectar con mi cerebro ahora mismo."
@@ -925,11 +1150,15 @@ async function preguntarGroq(pregunta) {
 
 function abrirMaps() {
 
-    mapaAbierto = true;
+    console.log(
+        "ABRIENDO MAPS"
+    );
+
 
     document
         .getElementById("mapa")
-        .style.display = "block";
+        .style.display =
+            "block";
 
 
     if (!mapa) {
@@ -953,13 +1182,22 @@ function abrirMaps() {
     }
 
 
-    mapa.invalidateSize();
+    setTimeout(
+        () => {
+
+            mapa.invalidateSize();
+
+        },
+        200
+    );
 
 
-    if (!navigator.geolocation) {
+    if (
+        !navigator.geolocation
+    ) {
 
         hablar(
-            "Tu navegador no permite obtener la ubicación."
+            "Este navegador no permite obtener la ubicación."
         );
 
         return;
@@ -977,6 +1215,7 @@ function abrirMaps() {
 
             const lat =
                 posicion.coords.latitude;
+
 
             const lon =
                 posicion.coords.longitude;
@@ -1003,14 +1242,18 @@ function abrirMaps() {
 
         },
 
+
         error => {
 
-            console.log(
+            console.error(
+                "Ubicación:",
                 error
             );
 
+
             estado.textContent =
                 "Ubicación no disponible";
+
 
             hablar(
                 "No puedo obtener tu ubicación. Comprueba el permiso de ubicación."
@@ -1018,13 +1261,16 @@ function abrirMaps() {
 
         },
 
+
         {
-            enableHighAccuracy: true,
+            enableHighAccuracy:
+                true,
 
-            timeout: 10000,
+            timeout:
+                10000,
 
-            maximumAge: 0
-
+            maximumAge:
+                0
         }
 
     );
@@ -1032,13 +1278,17 @@ function abrirMaps() {
 }
 
 
-function cerrarMaps() {
+/* =====================================================
+   CERRAR MAPS
+===================================================== */
 
-    mapaAbierto = false;
+function cerrarMaps() {
 
     document
         .getElementById("mapa")
-        .style.display = "none";
+        .style.display =
+            "none";
+
 
     estadoNormal();
 
@@ -1046,112 +1296,39 @@ function cerrarMaps() {
 
 
 /* =====================================================
-   BOTÓN ACTIVAR
-===================================================== */
-
-boton.addEventListener(
-    "click",
-    async () => {
-
-        if (emmetActivo) return;
-
-
-        emmetActivo = true;
-
-        boton.style.display =
-            "none";
-
-
-        estado.textContent =
-            "Activando...";
-
-
-        /*
-           Pedimos acceso al micrófono
-           explícitamente.
-        */
-
-        try {
-
-            const stream =
-                await navigator.mediaDevices
-                    .getUserMedia({
-                        audio: true
-                    });
-
-
-            /*
-               Paramos las pistas porque
-               SpeechRecognition gestionará
-               el micrófono.
-            */
-
-            stream
-                .getTracks()
-                .forEach(
-                    track =>
-                        track.stop()
-                );
-
-
-        } catch(error) {
-
-            console.error(
-                error
-            );
-
-            estado.textContent =
-                "Micrófono bloqueado";
-
-            await hablar(
-                "Necesito permiso para usar el micrófono."
-            );
-
-            return;
-
-        }
-
-
-        await hablar(
-            "Hola. Soy Emmet."
-        );
-
-
-        iniciarEscucha();
-
-        iniciarTemporizadorSilencio();
-
-    }
-);
-
-
-/* =====================================================
-   DETECTOR DE SILENCIO
+   DATOS ASTRONÓMICOS
 ===================================================== */
 
 const datosAstronomia = [
 
     "Un dato curioso de la astronomía es que un día en Venus dura más que su año.",
 
-    "Un dato curioso de la astronomía es que Saturno tiene una densidad media menor que la del agua.",
-
     "Un dato curioso de la astronomía es que la luz del Sol tarda unos ocho minutos en llegar hasta nosotros.",
 
-    "Un dato curioso de la astronomía es que una estrella de neutrones puede concentrar más masa que el Sol en un tamaño diminuto.",
+    "Un dato curioso de la astronomía es que Saturno tiene una densidad media menor que la del agua.",
 
-    "Un dato curioso de la astronomía es que en Marte se encuentra Olympus Mons, uno de los volcanes más grandes conocidos del Sistema Solar."
+    "Un dato curioso de la astronomía es que Marte tiene uno de los volcanes más grandes conocidos del Sistema Solar.",
+
+    "Un dato curioso de la astronomía es que las estrellas de neutrones son extremadamente densas."
 
 ];
 
+
+/* =====================================================
+   TEMPORIZADOR DE 1 MINUTO
+===================================================== */
 
 function iniciarTemporizadorSilencio() {
 
     detenerTemporizadorSilencio();
 
 
-    if (!emmetActivo) return;
+    if (!emmetActivo)
+        return;
 
-    if (modoNinja) return;
+
+    if (modoNinja)
+        return;
 
 
     temporizadorSilencio =
@@ -1182,7 +1359,12 @@ function iniciarTemporizadorSilencio() {
 
             },
 
-            8000
+            /*
+               60.000 ms = 1 MINUTO
+            */
+
+            60000
+
         );
 
 }
@@ -1198,6 +1380,7 @@ function detenerTemporizadorSilencio() {
             temporizadorSilencio
         );
 
+
         temporizadorSilencio =
             null;
 
@@ -1207,7 +1390,84 @@ function detenerTemporizadorSilencio() {
 
 
 /* =====================================================
-   ESTADO INICIAL
+   ACTIVAR EMMET
+===================================================== */
+
+boton.addEventListener(
+    "click",
+    async () => {
+
+        if (emmetActivo)
+            return;
+
+
+        emmetActivo =
+            true;
+
+
+        boton.style.display =
+            "none";
+
+
+        estado.textContent =
+            "Activando...";
+
+
+        try {
+
+            const stream =
+                await navigator
+                    .mediaDevices
+                    .getUserMedia({
+                        audio: true
+                    });
+
+
+            stream
+                .getTracks()
+                .forEach(
+                    track =>
+                        track.stop()
+                );
+
+
+        } catch(error) {
+
+            console.error(
+                error
+            );
+
+
+            estado.textContent =
+                "Micrófono bloqueado";
+
+
+            await hablar(
+                "Necesito permiso para usar el micrófono."
+            );
+
+
+            return;
+
+        }
+
+
+        await hablar(
+            "Hola. Soy Emmet."
+        );
+
+
+        iniciarEscucha();
+
+
+        iniciarTemporizadorSilencio();
+
+    }
+);
+
+
+/* =====================================================
+   INICIO
 ===================================================== */
 
 estadoNormal();
