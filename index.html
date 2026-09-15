@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Emmet</title>
 
 <style>
@@ -23,8 +22,6 @@ body {
     overflow: hidden;
 }
 
-/* DISPOSITIVO */
-
 .emmet {
     width: 330px;
     height: 330px;
@@ -39,32 +36,23 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-
     position: relative;
 }
-
-/* CARA */
 
 .face {
     width: 230px;
     height: 130px;
-
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 35px;
-
     transition: 0.25s;
 }
-
-/* OJOS */
 
 .eye {
     width: 75px;
     height: 45px;
-
     background: #00eaff;
-
     border-radius: 50%;
 
     box-shadow:
@@ -74,27 +62,18 @@ body {
     transition: 0.2s;
 }
 
-/* PARPADEO */
-
 .blink .eye {
     height: 7px;
-    border-radius: 50%;
 }
-
-/* FELIZ */
 
 .happy .eye {
     height: 28px;
     border-radius: 50% 50% 20% 20%;
 }
 
-/* TRISTE */
-
 .sad .eye {
     transform: rotate(15deg);
 }
-
-/* PROCESANDO */
 
 .processing .eye {
     background: #a855ff;
@@ -104,97 +83,57 @@ body {
         0 0 30px rgba(168,85,255,0.9);
 }
 
-/* ESCUCHANDO */
-
 .listening .eye {
     animation: pulse 0.8s infinite alternate;
 }
 
 @keyframes pulse {
-    from {
-        transform: scaleY(0.8);
-    }
-
-    to {
-        transform: scaleY(1.15);
-    }
+    from { transform: scaleY(0.8); }
+    to { transform: scaleY(1.15); }
 }
-
-/* HABLANDO */
 
 .talking .eye {
     animation: talk 0.25s infinite alternate;
 }
 
 @keyframes talk {
-    from {
-        transform: scaleY(1);
-    }
-
-    to {
-        transform: scaleY(0.65);
-    }
+    from { transform: scaleY(1); }
+    to { transform: scaleY(0.65); }
 }
-
-/* LUZ */
 
 .light {
     position: absolute;
-
     width: 12px;
     height: 12px;
-
     border-radius: 50%;
-
     background: #00eaff;
-
     box-shadow: 0 0 15px #00eaff;
-
     bottom: 65px;
 }
 
 .processing .light {
     background: #a855ff;
-
     box-shadow: 0 0 15px #a855ff;
 }
 
-/* TEXTO */
-
 .status {
     position: absolute;
-
     bottom: 25px;
-
     font-size: 13px;
-
     opacity: 0.5;
-
     text-align: center;
-
     width: 100%;
 }
 
-/* BOTÓN */
-
 .start {
     position: absolute;
-
-    bottom: 30px;
-
+    bottom: 45px;
     padding: 10px 18px;
-
     border: 1px solid #00eaff;
-
     border-radius: 20px;
-
     background: #050505;
-
     color: #00eaff;
-
     cursor: pointer;
-
-    display: none;
 }
 
 .start:hover {
@@ -209,16 +148,14 @@ body {
 <div class="emmet">
 
     <div id="face" class="face">
-
         <div class="eye"></div>
         <div class="eye"></div>
-
     </div>
 
     <div id="light" class="light"></div>
 
     <div id="status" class="status">
-        Emmet iniciando...
+        Pulsa el botón para activar Emmet
     </div>
 
     <button id="start" class="start">
@@ -229,15 +166,11 @@ body {
 
 <script>
 
-/* =========================
-        EMMET
-========================= */
-
 const face = document.getElementById("face");
 const statusText = document.getElementById("status");
 const startButton = document.getElementById("start");
 
-let recognition;
+let recognition = null;
 let listening = false;
 
 
@@ -258,13 +191,13 @@ function sad() {
 }
 
 function blink() {
+    if (listening) return;
 
     face.className = "face blink";
 
     setTimeout(() => {
-        normal();
+        if (!listening) normal();
     }, 150);
-
 }
 
 function listeningFace() {
@@ -291,9 +224,7 @@ setInterval(() => {
         !face.classList.contains("processing") &&
         !face.classList.contains("talking")
     ) {
-
         blink();
-
     }
 
 }, 3500);
@@ -311,11 +242,9 @@ function speak(text) {
 
     window.speechSynthesis.cancel();
 
-    const speech =
-        new SpeechSynthesisUtterance(text);
+    const speech = new SpeechSynthesisUtterance(text);
 
     speech.lang = "es-ES";
-
     speech.rate = 1.05;
     speech.pitch = 1.25;
     speech.volume = 1;
@@ -324,8 +253,7 @@ function speak(text) {
 
         talkingFace();
 
-        statusText.textContent =
-            "Hablando...";
+        statusText.textContent = "Hablando...";
 
     };
 
@@ -333,15 +261,13 @@ function speak(text) {
 
         normal();
 
-        statusText.textContent =
-            "Escuchando...";
+        statusText.textContent = "Escuchando...";
 
-        startListening();
+        setTimeout(startListening, 300);
 
     };
 
     window.speechSynthesis.speak(speech);
-
 }
 
 
@@ -351,11 +277,8 @@ function speak(text) {
 
 function answer(text) {
 
-    const t =
-        text.toLowerCase().trim();
+    const t = text.toLowerCase().trim();
 
-
-    /* HOLA */
 
     if (
         t.includes("hola") ||
@@ -364,16 +287,11 @@ function answer(text) {
 
         happy();
 
-        speak(
-            "¡Hola! Soy Emmet. ¿Qué hacemos?"
-        );
+        speak("¡Hola! Soy Emmet. ¿Qué hacemos?");
 
         return;
-
     }
 
-
-    /* NOMBRE */
 
     if (
         t.includes("cómo te llamas") ||
@@ -382,16 +300,11 @@ function answer(text) {
         t.includes("quien eres")
     ) {
 
-        speak(
-            "Me llamo Emmet."
-        );
+        speak("Me llamo Emmet.");
 
         return;
-
     }
 
-
-    /* CAPACIDADES */
 
     if (
         t.includes("qué puedes hacer") ||
@@ -399,58 +312,44 @@ function answer(text) {
     ) {
 
         speak(
-            "Puedo escucharte y hablar contigo."
+            "Puedo escucharte y hablar contigo. Todavía estoy aprendiendo."
         );
 
         return;
-
     }
 
-
-    /* GRACIAS */
 
     if (t.includes("gracias")) {
 
         happy();
 
-        speak(
-            "¡De nada!"
-        );
+        speak("¡De nada!");
 
         return;
-
     }
 
-
-    /* ADIÓS */
 
     if (
         t.includes("adiós") ||
         t.includes("adios")
     ) {
 
-        speak(
-            "Hasta luego."
-        );
+        speak("Hasta luego.");
 
         return;
-
     }
 
-
-    /* RESPUESTA POR DEFECTO */
 
     speak(
         "He escuchado: " +
         text +
         ". Todavía estoy aprendiendo."
     );
-
 }
 
 
 /* =========================
-        ESCUCHAR
+        RECONOCIMIENTO
 ========================= */
 
 function createRecognition() {
@@ -459,25 +358,18 @@ function createRecognition() {
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
-
     if (!SpeechRecognition) {
 
         statusText.textContent =
-            "Tu navegador no permite reconocimiento de voz.";
+            "Este navegador no permite reconocimiento de voz.";
 
         return null;
-
     }
 
-
-    const rec =
-        new SpeechRecognition();
-
+    const rec = new SpeechRecognition();
 
     rec.lang = "es-ES";
-
     rec.continuous = false;
-
     rec.interimResults = false;
 
 
@@ -498,11 +390,6 @@ function createRecognition() {
         const text =
             event.results[0][0].transcript;
 
-        console.log(
-            "Has dicho:",
-            text
-        );
-
         listening = false;
 
         processingFace();
@@ -511,7 +398,6 @@ function createRecognition() {
             "Procesando...";
 
         answer(text);
-
     };
 
 
@@ -526,14 +412,16 @@ function createRecognition() {
 
         normal();
 
+        if (event.error === "not-allowed") {
+
+            statusText.textContent =
+                "Permite el micrófono para usar Emmet.";
+
+            return;
+        }
+
         statusText.textContent =
-            "Esperando...";
-
-        setTimeout(() => {
-
-            startListening();
-
-        }, 1500);
+            "No te he escuchado.";
 
     };
 
@@ -546,25 +434,20 @@ function createRecognition() {
 
 
     return rec;
-
 }
 
 
 /* =========================
-        INICIAR ESCUCHA
+        ESCUCHAR
 ========================= */
 
 function startListening() {
 
-    if (!recognition)
-        return;
+    if (!recognition) return;
 
-    if (listening)
-        return;
+    if (listening) return;
 
-    if (window.speechSynthesis.speaking)
-        return;
-
+    if (window.speechSynthesis.speaking) return;
 
     try {
 
@@ -575,54 +458,27 @@ function startListening() {
         console.log(error);
 
     }
-
 }
 
 
 /* =========================
-        INICIO
-========================= */
-
-recognition =
-    createRecognition();
-
-
-if (recognition) {
-
-    statusText.textContent =
-        "Emmet preparado";
-
-
-    setTimeout(() => {
-
-        speak(
-            "Hola. Soy Emmet. Ya estoy preparado."
-        );
-
-    }, 1000);
-
-} else {
-
-    startButton.style.display =
-        "block";
-
-}
-
-
-/* =========================
-        BOTÓN
+        ACTIVAR EMMET
 ========================= */
 
 startButton.onclick = () => {
 
-    startButton.style.display =
-        "none";
+    startButton.style.display = "none";
 
-    recognition =
-        createRecognition();
+    recognition = createRecognition();
 
-    startListening();
+    if (!recognition) return;
 
+    statusText.textContent =
+        "Emmet iniciando...";
+
+    speak(
+        "Hola. Soy Emmet. Ya estoy preparado."
+    );
 };
 
 </script>
