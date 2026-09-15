@@ -1,274 +1,211 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Emmet AI</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emmet</title>
 
-<style>
-body{
-    margin:0;
-    background:#05070b;
-    color:white;
-    font-family:Arial,sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    text-align:center;
-}
-#app{width:min(800px,90%);}
-h1{font-size:64px;letter-spacing:10px;}
-#orb{
-    width:180px;
-    height:180px;
-    margin:35px auto;
-    border-radius:50%;
-    background:radial-gradient(circle,#fff,#7dd3fc,#2563eb,#05070b 70%);
-    box-shadow:0 0 40px #38bdf8,0 0 100px #2563eb;
-}
-.listening{
-    animation:pulse 1s infinite;
-}
-@keyframes pulse{
-    50%{transform:scale(1.12);}
-}
-#answer{
-    min-height:70px;
-    font-size:22px;
-}
-button{
-    padding:14px 25px;
-    margin:8px;
-    border:0;
-    border-radius:12px;
-    font-size:18px;
-    cursor:pointer;
-}
-#state{color:#9ca3af;}
-</style>
+  <style>
+    body {
+      margin: 0;
+      background: #050505;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    #emmet {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: #111;
+      border: 4px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      margin-bottom: 25px;
+      box-shadow: 0 0 30px #222;
+    }
+
+    #estado {
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    button {
+      padding: 14px 25px;
+      border: 0;
+      border-radius: 25px;
+      background: white;
+      color: black;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="app">
+  <div id="emmet">●‿●</div>
 
-<h1>EMMET</h1>
+  <div id="estado">Pulsa para hablar con Emmet</div>
 
-<div id="state">Iniciando...</div>
+  <button onclick="escuchar()">🎤 Hablar con Emmet</button>
 
-<div id="orb"></div>
+  <script>
+    const estado = document.getElementById("estado");
+    const cara = document.getElementById("emmet");
 
-<div id="answer"></div>
+    const Reconocimiento =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
 
-<div id="language">
-<button onclick="start('es-ES')">🇪🇸 Español</button>
-<button onclick="start('ca-ES')">🟨 Català</button>
-</div>
+    let reconocimiento;
 
-</div>
+    if (Reconocimiento) {
+      reconocimiento = new Reconocimiento();
+      reconocimiento.lang = "es-ES";
+      reconocimiento.continuous = false;
+      reconocimiento.interimResults = false;
 
-<script>
+      reconocimiento.onstart = () => {
+        estado.textContent = "🎤 Te estoy escuchando...";
+        cara.textContent = "◉‿◉";
+      };
 
-let lang=null;
+      reconocimiento.onend = () => {
+        cara.textContent = "●‿●";
+      };
 
-const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
+      reconocimiento.onerror = () => {
+        estado.textContent = "No he podido escucharte.";
+        cara.textContent = "×‿×";
+      };
 
-let recognition;
+      reconocimiento.onresult = (evento) => {
+        const texto =
+          evento.results[0][0].transcript.toLowerCase().trim();
 
-const orb=document.getElementById("orb");
-const state=document.getElementById("state");
-const answer=document.getElementById("answer");
-const language=document.getElementById("language");
+        procesar(texto);
+      };
 
-function speak(text){
-
-    speechSynthesis.cancel();
-
-    const u=new SpeechSynthesisUtterance(text);
-
-    u.lang=lang;
-
-    /*
-    Voz juvenil y energética.
-    No intenta copiar exactamente la voz de
-    ningún personaje o actor.
-    */
-
-    u.pitch=1.3;
-    u.rate=1.08;
-    u.volume=1;
-
-    u.onend=()=>{
-        setTimeout(listen,500);
-    };
-
-    speechSynthesis.speak(u);
-}
-
-function start(language){
-
-    lang=language;
-
-    localStorage.setItem("emmetLanguage",lang);
-
-    document.getElementById("language").style.display="none";
-
-    if(lang==="ca-ES"){
-        speak("Hola! Soc Emmet. T'escolto.");
-    }else{
-        speak("Hola! Soy Emmet. Te escucho.");
+    } else {
+      estado.textContent =
+        "Tu navegador no permite reconocimiento de voz.";
     }
 
-    createRecognition();
-}
 
-function createRecognition(){
+    function escuchar() {
+      if (!reconocimiento) return;
 
-    if(!SpeechRecognition){
-
-        answer.textContent =
-        "Este navegador no permite reconocimiento de voz.";
-
-        return;
+      window.speechSynthesis.cancel();
+      reconocimiento.start();
     }
 
-    recognition=new SpeechRecognition();
 
-    recognition.lang=lang;
-    recognition.continuous=false;
-    recognition.interimResults=false;
+    function hablar(texto) {
+      estado.textContent = texto;
 
-    recognition.onstart=()=>{
+      const voz = new SpeechSynthesisUtterance(texto);
+      voz.lang = "es-ES";
+      voz.rate = 1;
+      voz.pitch = 1.15;
 
-        orb.classList.add("listening");
+      voz.onstart = () => {
+        cara.textContent = "◉ᴗ◉";
+      };
 
-        state.textContent =
-        lang==="ca-ES"
-        ?"🎙️ T'escolto..."
-        :"🎙️ Te escucho...";
-    };
+      voz.onend = () => {
+        cara.textContent = "●‿●";
+      };
 
-    recognition.onresult=(event)=>{
-
-        const text=
-        event.results[0][0].transcript;
-
-        answer.textContent="Tú: "+text;
-
-        process(text);
-    };
-
-    recognition.onerror=()=>{
-
-        orb.classList.remove("listening");
-
-        setTimeout(listen,1500);
-    };
-
-    recognition.onend=()=>{
-
-        orb.classList.remove("listening");
-    };
-}
-
-function listen(){
-
-    if(!recognition || speechSynthesis.speaking)
-        return;
-
-    try{
-        recognition.start();
-    }catch(e){}
-}
-
-function process(text){
-
-    const t=text.toLowerCase();
-
-    if(t.includes("hola") || t.includes("buenas")){
-
-        const r=
-        lang==="ca-ES"
-        ?"Hola! Què tal?"
-        :"¡Hola! ¿Qué tal?";
-
-        answer.textContent=r;
-        speak(r);
-        return;
+      speechSynthesis.speak(voz);
     }
 
-    if(t.includes("cómo te llamas") ||
-       t.includes("como te llamas") ||
-       t.includes("qui ets") ||
-       t.includes("com et dius")){
 
-        const r=
-        lang==="ca-ES"
-        ?"Em dic Emmet."
-        :"Me llamo Emmet.";
+    function procesar(texto) {
 
-        answer.textContent=r;
-        speak(r);
+      // GOOGLE
+      if (
+        texto.startsWith("busca ") ||
+        texto.startsWith("buscar ") ||
+        texto.startsWith("emmet busca ") ||
+        texto.startsWith("emmet, busca ")
+      ) {
+
+        let busqueda = texto
+          .replace(/^emmet,\s*busca\s*/i, "")
+          .replace(/^emmet\s+busca\s*/i, "")
+          .replace(/^busca\s*/i, "")
+          .replace(/^buscar\s*/i, "")
+          .trim();
+
+        if (!busqueda) {
+          hablar("¿Qué quieres que busque?");
+          return;
+        }
+
+        hablar("Buscando " + busqueda);
+
+        const google =
+          "https://www.google.com/search?q=" +
+          encodeURIComponent(busqueda);
+
+        setTimeout(() => {
+          window.open(google, "_blank");
+        }, 700);
+
         return;
-    }
+      }
 
-    if(t.includes("qué hora") ||
-       t.includes("quina hora")){
 
-        const time=new Date().toLocaleTimeString(
-            lang==="ca-ES" ? "ca-ES":"es-ES",
-            {hour:"2-digit",minute:"2-digit"}
+      // RESPUESTAS BÁSICAS
+      if (texto.includes("hola")) {
+        hablar("Hola. Soy Emmet. ¿Qué hacemos?");
+        return;
+      }
+
+      if (texto.includes("cómo te llamas")) {
+        hablar("Me llamo Emmet.");
+        return;
+      }
+
+      if (texto.includes("qué puedes hacer")) {
+        hablar(
+          "Puedo escucharte, hablar contigo y hacer búsquedas en Google."
         );
-
-        const r=
-        lang==="ca-ES"
-        ?"Ara són les "+time
-        :"Ahora son las "+time;
-
-        answer.textContent=r;
-        speak(r);
         return;
+      }
+
+      if (texto.includes("gracias")) {
+        hablar("De nada.");
+        return;
+      }
+
+      if (texto.includes("adiós") || texto.includes("adios")) {
+        hablar("Hasta luego.");
+        return;
+      }
+
+
+      // SI NO ENTIENDE
+      hablar(
+        "No tengo una respuesta para eso todavía. Puedes decirme, por ejemplo, busca Godzilla Singular Point."
+      );
     }
-
-    /*
-    AQUÍ irá el cerebro de IA real.
-    No inventamos respuestas falsas.
-    */
-
-    const r=
-    lang==="ca-ES"
-    ?"Encara no tinc connectat el meu cervell d'IA."
-    :"Todavía no tengo conectado mi cerebro de IA.";
-
-    answer.textContent=r;
-
-    speak(r);
-}
-
-const saved=localStorage.getItem("emmetLanguage");
-
-if(saved){
-
-    lang=saved;
-
-    language.style.display="none";
-
-    createRecognition();
-
-    setTimeout(()=>{
-
-        if(lang==="ca-ES")
-            speak("Hola! Soc Emmet. T'escolto.");
-        else
-            speak("Hola! Soy Emmet. Te escucho.");
-
-    },800);
-}
-
-</script>
+  </script>
 
 </body>
 </html>
+```
