@@ -2,6 +2,7 @@
 <html lang="es">
 
 <head>
+
 <meta charset="UTF-8">
 
 <meta
@@ -30,6 +31,7 @@ body {
 }
 
 body {
+
     background: #050505;
     color: white;
 
@@ -46,11 +48,13 @@ body {
 }
 
 #contenedor {
+
     text-align: center;
     width: 100%;
 }
 
 #emmet {
+
     width: 300px;
     height: 300px;
 
@@ -59,6 +63,7 @@ body {
     background: #000;
 
     border: 3px solid #111;
+
     border-radius: 50%;
 
     box-shadow:
@@ -66,6 +71,7 @@ body {
         inset 0 0 30px rgba(0,255,255,0.04);
 
     display: flex;
+
     justify-content: center;
     align-items: center;
 
@@ -75,17 +81,20 @@ body {
 }
 
 
-/* OJOS */
+/* =====================================================
+   OJOS
+===================================================== */
 
 .ojo {
+
     width: 55px;
     height: 85px;
 
     background: #00ffff;
 
     /*
-       Parte superior plana.
-       Parte inferior redondeada.
+       ARRIBA PLANO
+       ABAJO REDONDEADO
     */
 
     border-radius:
@@ -102,9 +111,12 @@ body {
 }
 
 
-/* ESTADO */
+/* =====================================================
+   ESTADO
+===================================================== */
 
 #estado {
+
     margin-top: 25px;
 
     color: #00ffff;
@@ -115,9 +127,12 @@ body {
 }
 
 
-/* BOTÓN */
+/* =====================================================
+   BOTÓN
+===================================================== */
 
 button {
+
     margin-top: 20px;
 
     padding: 13px 22px;
@@ -138,13 +153,18 @@ button {
 }
 
 button:active {
+
     transform: scale(0.96);
+
 }
 
 
-/* ESCUCHANDO */
+/* =====================================================
+   ESCUCHANDO
+===================================================== */
 
 .escuchando .ojo {
+
     animation:
         escuchar
         1s
@@ -153,9 +173,12 @@ button:active {
 }
 
 
-/* PENSANDO */
+/* =====================================================
+   PENSANDO
+===================================================== */
 
 .pensando .ojo {
+
     background: #9b00ff;
 
     box-shadow:
@@ -164,9 +187,12 @@ button:active {
 }
 
 
-/* HABLANDO */
+/* =====================================================
+   HABLANDO
+===================================================== */
 
 .hablando .ojo {
+
     animation:
         hablar
         0.25s
@@ -175,15 +201,21 @@ button:active {
 }
 
 
-/* NINJA */
+/* =====================================================
+   MODO NINJA
+===================================================== */
 
 .ninja .ojo {
+
     opacity: 0.15;
+
     box-shadow: none;
 }
 
 
-/* ANIMACIONES */
+/* =====================================================
+   ANIMACIONES
+===================================================== */
 
 @keyframes escuchar {
 
@@ -210,9 +242,12 @@ button:active {
 }
 
 
-/* MAPA */
+/* =====================================================
+   MAPA
+===================================================== */
 
 #mapa {
+
     position: fixed;
 
     inset: 0;
@@ -225,11 +260,13 @@ button:active {
 }
 
 #map {
+
     width: 100%;
     height: 100%;
 }
 
 #cerrarMapa {
+
     position: absolute;
 
     top: 15px;
@@ -240,6 +277,7 @@ button:active {
     margin: 0;
 
     background: white;
+
     color: black;
 
     padding: 12px 16px;
@@ -248,6 +286,7 @@ button:active {
 }
 
 #tituloMapa {
+
     position: absolute;
 
     top: 15px;
@@ -266,17 +305,22 @@ button:active {
 }
 
 
-/* MÓVIL */
+/* =====================================================
+   MÓVIL
+===================================================== */
 
 @media (max-width: 500px) {
 
     #emmet {
+
         width: 250px;
         height: 250px;
+
         gap: 35px;
     }
 
     .ojo {
+
         width: 48px;
         height: 73px;
     }
@@ -315,7 +359,9 @@ button:active {
 
 
 
-<!-- MAPA -->
+<!-- =====================================================
+     MAPA
+===================================================== -->
 
 <div id="mapa">
 
@@ -378,14 +424,16 @@ function estadoNormal() {
 
     emmet.className = "";
 
-    estado.textContent = "Emmet";
+    estado.textContent =
+        "Emmet";
 
 }
 
 
 function estadoEscuchando() {
 
-    if (modoNinja) return;
+    if (modoNinja)
+        return;
 
     emmet.className =
         "escuchando";
@@ -430,6 +478,7 @@ function obtenerVoz() {
     if (!voces.length)
         return null;
 
+
     return (
 
         voces.find(
@@ -454,7 +503,8 @@ function obtenerVoz() {
 speechSynthesis.onvoiceschanged =
     () => {
 
-        speechSynthesis.getVoices();
+        speechSynthesis
+            .getVoices();
 
     };
 
@@ -480,7 +530,9 @@ function hablar(texto) {
         if (reconocimiento) {
 
             try {
+
                 reconocimiento.abort();
+
             } catch(e) {}
 
         }
@@ -496,16 +548,20 @@ function hablar(texto) {
 
 
         /*
-           Voz más aguda.
+           VOZ MÁS AGUDA
         */
 
-        frase.lang = "es-ES";
+        frase.lang =
+            "es-ES";
 
-        frase.rate = 1.10;
+        frase.rate =
+            1.10;
 
-        frase.pitch = 1.25;
+        frase.pitch =
+            1.25;
 
-        frase.volume = 1;
+        frase.volume =
+            1;
 
 
         const voz =
@@ -513,14 +569,18 @@ function hablar(texto) {
 
 
         if (voz) {
-            frase.voice = voz;
+
+            frase.voice =
+                voz;
+
         }
 
 
         frase.onend =
             () => {
 
-                hablando = false;
+                hablando =
+                    false;
 
                 estadoNormal();
 
@@ -546,7 +606,8 @@ function hablar(texto) {
         frase.onerror =
             () => {
 
-                hablando = false;
+                hablando =
+                    false;
 
                 estadoNormal();
 
@@ -566,7 +627,9 @@ function hablar(texto) {
             };
 
 
-        speechSynthesis.speak(frase);
+        speechSynthesis.speak(
+            frase
+        );
 
     });
 
@@ -785,16 +848,21 @@ function iniciarEscucha() {
 function normalizar(texto) {
 
     return texto
+
         .toLowerCase()
+
         .normalize("NFD")
+
         .replace(
             /[\u0300-\u036f]/g,
             ""
         )
+
         .replace(
             /[.,!?¿¡]/g,
             ""
         )
+
         .trim();
 
 }
@@ -804,7 +872,9 @@ function normalizar(texto) {
    PROCESAR TEXTO
 ===================================================== */
 
-async function procesarTexto(texto) {
+async function procesarTexto(
+    texto
+) {
 
     const t =
         normalizar(texto);
@@ -816,7 +886,9 @@ async function procesarTexto(texto) {
     );
 
 
-    /* SALIR DEL NINJA */
+    /* =================================================
+       SALIR DEL MODO NINJA
+    ================================================= */
 
     if (
         modoNinja &&
@@ -830,9 +902,13 @@ async function procesarTexto(texto) {
         )
     ) {
 
-        modoNinja = false;
+        modoNinja =
+            false;
 
-        emmet.className = "";
+
+        emmet.className =
+            "";
+
 
         estado.textContent =
             "Emmet";
@@ -848,7 +924,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* ACTIVAR NINJA */
+    /* =================================================
+       ACTIVAR MODO NINJA
+    ================================================= */
 
     if (
         !modoNinja &&
@@ -859,13 +937,16 @@ async function procesarTexto(texto) {
         )
     ) {
 
-        modoNinja = true;
+        modoNinja =
+            true;
 
 
         if (reconocimiento) {
 
             try {
+
                 reconocimiento.abort();
+
             } catch(e) {}
 
         }
@@ -877,6 +958,7 @@ async function procesarTexto(texto) {
         emmet.className =
             "ninja";
 
+
         estado.textContent =
             "Modo ninja";
 
@@ -886,7 +968,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* IGNORAR TODO EN NINJA */
+    /* =================================================
+       IGNORAR TODO EN NINJA
+    ================================================= */
 
     if (modoNinja) {
 
@@ -895,7 +979,47 @@ async function procesarTexto(texto) {
     }
 
 
-    /* EMMET SALUDA */
+    /* =================================================
+       MAGDA
+    ================================================= */
+
+    if (
+        t === "magda" ||
+        t.includes("magda")
+    ) {
+
+        await hablar(
+            "Hola mamá"
+        );
+
+        return;
+
+    }
+
+
+    /* =================================================
+       GERARD / GERI
+    ================================================= */
+
+    if (
+        t === "gerard" ||
+        t === "geri" ||
+        t.includes("gerard") ||
+        t.includes("geri")
+    ) {
+
+        await hablar(
+            "Ese es mi creador."
+        );
+
+        return;
+
+    }
+
+
+    /* =================================================
+       EMMET SALUDA
+    ================================================= */
 
     if (
         t.includes("emmet saluda")
@@ -910,7 +1034,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* MAPS */
+    /* =================================================
+       MAPS
+    ================================================= */
 
     if (
         t === "maps" ||
@@ -949,7 +1075,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* CERRAR MAPS */
+    /* =================================================
+       CERRAR MAPS
+    ================================================= */
 
     if (
         t.includes("cierra maps") ||
@@ -972,7 +1100,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* SALUDOS */
+    /* =================================================
+       SALUDOS
+    ================================================= */
 
     if (
         t === "hola" ||
@@ -989,7 +1119,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* NOMBRE */
+    /* =================================================
+       NOMBRE
+    ================================================= */
 
     if (
         t.includes("como te llamas") ||
@@ -1005,7 +1137,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* GRACIAS */
+    /* =================================================
+       GRACIAS
+    ================================================= */
 
     if (
         t.includes("gracias")
@@ -1020,7 +1154,9 @@ async function procesarTexto(texto) {
     }
 
 
-    /* ADIÓS */
+    /* =================================================
+       ADIÓS
+    ================================================= */
 
     if (
         t === "adios" ||
@@ -1036,7 +1172,12 @@ async function procesarTexto(texto) {
     }
 
 
-    /* GROQ */
+    /* =================================================
+       TODO LO DEMÁS → GROQ
+       
+       Aquí también puede responder preguntas
+       de diccionario, definiciones, etc.
+    ================================================= */
 
     await preguntarGroq(
         texto
@@ -1053,7 +1194,9 @@ async function preguntarGroq(
     pregunta
 ) {
 
-    pensando = true;
+    pensando =
+        true;
+
 
     estadoPensando();
 
@@ -1061,7 +1204,9 @@ async function preguntarGroq(
     if (reconocimiento) {
 
         try {
+
             reconocimiento.abort();
+
         } catch(e) {}
 
     }
@@ -1100,7 +1245,8 @@ async function preguntarGroq(
             );
 
 
-            pensando = false;
+            pensando =
+                false;
 
 
             await hablar(
@@ -1117,7 +1263,8 @@ async function preguntarGroq(
             datos.respuesta;
 
 
-        pensando = false;
+        pensando =
+            false;
 
 
         await hablar(
@@ -1132,7 +1279,8 @@ async function preguntarGroq(
         );
 
 
-        pensando = false;
+        pensando =
+            false;
 
 
         await hablar(
