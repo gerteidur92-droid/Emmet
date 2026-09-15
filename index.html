@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Emmet</title>
 
 <style>
@@ -13,404 +12,284 @@
 
 body {
     margin: 0;
+    min-height: 100vh;
     background: #050505;
     color: white;
     font-family: Arial, sans-serif;
-    height: 100vh;
+
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    overflow: hidden;
+    justify-content: center;
+    gap: 30px;
 }
 
-.emmet {
+#emmet {
     width: 330px;
     height: 330px;
     border-radius: 50%;
-    background: #090909;
-    border: 4px solid #202020;
+
+    background: #020202;
+    border: 4px solid #111;
 
     box-shadow:
-        0 0 25px rgba(0,255,255,0.25),
-        inset 0 0 35px #000;
+        0 0 20px #00ffff55,
+        inset 0 0 30px #00ffff11;
 
     display: flex;
-    justify-content: center;
     align-items: center;
-    position: relative;
-}
-
-.face {
-    width: 230px;
-    height: 130px;
-
-    display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 35px;
+    gap: 65px;
 
-    transition: 0.25s;
+    transition: 0.3s;
 }
 
 .eye {
-    width: 75px;
-    height: 45px;
-
-    background: #00eaff;
-
+    width: 55px;
+    height: 100px;
     border-radius: 50%;
 
+    background: #00ffff;
+
     box-shadow:
-        0 0 10px #00eaff,
-        0 0 25px rgba(0,234,255,0.8);
+        0 0 15px #00ffff,
+        0 0 35px #00ffff;
 
     transition: 0.2s;
 }
 
-.blink .eye {
-    height: 7px;
+.eye.blink {
+    height: 8px;
 }
 
-.happy .eye {
-    height: 28px;
-    border-radius: 50% 50% 20% 20%;
-}
-
-.sad .eye {
-    transform: rotate(15deg);
-}
-
-.processing .eye {
-    background: #a855ff;
-
+#emmet.listening {
     box-shadow:
-        0 0 10px #a855ff,
-        0 0 30px rgba(168,85,255,0.9);
+        0 0 25px #00ffff,
+        0 0 70px #00ffff;
 }
 
-.listening .eye {
-    animation: pulse 0.8s infinite alternate;
+#emmet.thinking {
+    box-shadow:
+        0 0 25px #a000ff,
+        0 0 70px #a000ff;
 }
 
-@keyframes pulse {
-    from {
-        transform: scaleY(0.8);
-    }
-
-    to {
-        transform: scaleY(1.15);
-    }
+#emmet.talking {
+    transform: scale(1.03);
 }
 
-.talking .eye {
-    animation: talk 0.25s infinite alternate;
-}
+button {
+    padding: 15px 30px;
 
-@keyframes talk {
-    from {
-        transform: scaleY(1);
-    }
+    border: none;
+    border-radius: 12px;
 
-    to {
-        transform: scaleY(0.65);
-    }
-}
+    background: #00ffff;
+    color: black;
 
-.light {
-    position: absolute;
-
-    width: 12px;
-    height: 12px;
-
-    border-radius: 50%;
-
-    background: #00eaff;
-
-    box-shadow: 0 0 15px #00eaff;
-
-    bottom: 65px;
-}
-
-.processing .light {
-    background: #a855ff;
-
-    box-shadow: 0 0 15px #a855ff;
-}
-
-.status {
-    position: absolute;
-
-    bottom: 25px;
-
-    font-size: 13px;
-
-    opacity: 0.5;
-
-    text-align: center;
-
-    width: 100%;
-}
-
-.start {
-    position: absolute;
-
-    bottom: 45px;
-
-    padding: 10px 18px;
-
-    border: 1px solid #00eaff;
-
-    border-radius: 20px;
-
-    background: #050505;
-
-    color: #00eaff;
+    font-size: 18px;
+    font-weight: bold;
 
     cursor: pointer;
 }
 
-.start:hover {
-    background: #00eaff;
-    color: black;
+button:hover {
+    transform: scale(1.05);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+#status {
+    font-size: 16px;
+    opacity: 0.8;
+    min-height: 24px;
+    text-align: center;
 }
 </style>
 </head>
 
 <body>
 
-<div class="emmet">
+<div id="emmet">
 
-    <div id="face" class="face">
+    <div class="eye" id="leftEye"></div>
+    <div class="eye" id="rightEye"></div>
 
-        <div class="eye"></div>
-        <div class="eye"></div>
+</div>
 
-    </div>
+<button id="activate">
+    ACTIVAR EMMET
+</button>
 
-    <div id="light" class="light"></div>
-
-    <div id="status" class="status">
-        Pulsa para activar Emmet
-    </div>
-
-    <button id="start" class="start">
-        ACTIVAR EMMET
-    </button>
-
+<div id="status">
+    Pulsa el botón para empezar.
 </div>
 
 <script>
 
-/* =========================
-        EMMET
-========================= */
-
-const face = document.getElementById("face");
+const emmet = document.getElementById("emmet");
+const activateButton = document.getElementById("activate");
 const statusText = document.getElementById("status");
-const startButton = document.getElementById("start");
 
 let recognition = null;
-let listening = false;
+let active = false;
+let speaking = false;
 
 
 /* =========================
-        CARA
-========================= */
-
-function normal() {
-    face.className = "face";
-}
-
-function happy() {
-    face.className = "face happy";
-}
-
-function sad() {
-    face.className = "face sad";
-}
-
-function blink() {
-
-    if (listening) return;
-
-    face.className = "face blink";
-
-    setTimeout(() => {
-
-        if (!listening) {
-            normal();
-        }
-
-    }, 150);
-}
-
-function listeningFace() {
-    face.className = "face listening";
-}
-
-function processingFace() {
-    face.className = "face processing";
-}
-
-function talkingFace() {
-    face.className = "face talking";
-}
-
-
-/* =========================
-        PARPADEO
-========================= */
-
-setInterval(() => {
-
-    if (
-        !face.classList.contains("listening") &&
-        !face.classList.contains("processing") &&
-        !face.classList.contains("talking")
-    ) {
-
-        blink();
-
-    }
-
-}, 3500);
-
-
-/* =========================
-        HABLAR
+   HABLAR
 ========================= */
 
 function speak(text) {
 
-    processingFace();
+    if (!text) return;
 
-    statusText.textContent =
-        "Pensando...";
+    speechSynthesis.cancel();
 
-    window.speechSynthesis.cancel();
-
-    const speech =
+    const utterance =
         new SpeechSynthesisUtterance(text);
 
-    speech.lang = "es-ES";
+    utterance.lang = "es-ES";
+    utterance.rate = 1.05;
+    utterance.pitch = 1.15;
 
-    speech.rate = 1.05;
+    utterance.onstart = () => {
 
-    speech.pitch = 1.25;
+        speaking = true;
 
-    speech.volume = 1;
-
-
-    speech.onstart = () => {
-
-        talkingFace();
+        emmet.classList.remove("listening");
+        emmet.classList.add("talking");
 
         statusText.textContent =
-            "Hablando...";
+            "Emmet está hablando...";
 
     };
 
+    utterance.onend = () => {
 
-    speech.onend = () => {
+        speaking = false;
 
-        normal();
+        emmet.classList.remove("talking");
 
-        statusText.textContent =
-            "Escuchando...";
+        if (active) {
 
-        setTimeout(() => {
+            statusText.textContent =
+                "Escuchando...";
 
-            startListening();
-
-        }, 300);
+            setTimeout(() => {
+                startListening();
+            }, 300);
+        }
 
     };
 
-
-    window.speechSynthesis.speak(speech);
-
+    speechSynthesis.speak(utterance);
 }
 
 
 /* =========================
-        GOOGLE
+   GEMINI
 ========================= */
 
-function googleSearch(query) {
+function buscarEnGemini(texto) {
 
-    const cleanQuery =
-        query
-            .replace(/buscar en google/gi, "")
-            .replace(/busca en google/gi, "")
-            .replace(/buscar en internet/gi, "")
-            .replace(/busca en internet/gi, "")
-            .trim();
+    let consulta = texto
+        .replace(/buscar en gemini/gi, "")
+        .replace(/busca en gemini/gi, "")
+        .replace(/buscar en google/gi, "")
+        .replace(/busca en google/gi, "")
+        .trim();
 
-
-    if (!cleanQuery) {
+    if (!consulta) {
 
         speak(
-            "¿Qué quieres que busque?"
+            "¿Qué quieres que busque en Gemini?"
         );
 
         return;
     }
 
-
     speak(
-        "Buscando en Google " +
-        cleanQuery
+        "Voy a buscarlo en Gemini."
     );
 
+    const url =
+        "https://gemini.google.com/app?q=" +
+        encodeURIComponent(consulta);
 
-    setTimeout(() => {
+    window.open(url, "_blank");
+}
 
-        const url =
-            "https://www.google.com/search?q=" +
-            encodeURIComponent(cleanQuery);
+
+/* =========================
+   PROCESAR LO QUE DICES
+========================= */
+
+async function procesarTexto(text) {
+
+    const texto = text.toLowerCase().trim();
+
+    console.log("Usuario:", text);
+
+
+    /* GEMINI */
+
+    if (
+        texto.includes("buscar en gemini") ||
+        texto.includes("busca en gemini")
+    ) {
+
+        buscarEnGemini(text);
+
+        return;
+    }
+
+
+    /* GOOGLE ANTIGUO */
+
+    if (
+        texto.includes("buscar en google") ||
+        texto.includes("busca en google")
+    ) {
+
+        let consulta = text
+            .replace(/buscar en google/gi, "")
+            .replace(/busca en google/gi, "")
+            .trim();
+
+        if (!consulta) {
+
+            speak(
+                "¿Qué quieres que busque?"
+            );
+
+            return;
+        }
+
+        speak(
+            "Voy a buscarlo en Google."
+        );
 
         window.open(
-            url,
+            "https://www.google.com/search?q=" +
+            encodeURIComponent(consulta),
             "_blank"
         );
 
-    }, 1200);
-}
-
-
-/* =========================
-        RESPUESTAS
-========================= */
-
-function answer(text) {
-
-    const t =
-        text.toLowerCase().trim();
-
-
-    /* GOOGLE */
-
-    if (
-        t.includes("buscar en google") ||
-        t.includes("busca en google") ||
-        t.includes("buscar en internet") ||
-        t.includes("busca en internet")
-    ) {
-
-        googleSearch(t);
-
         return;
     }
 
 
-    /* HOLA */
+    /* RESPUESTAS BÁSICAS */
 
     if (
-        t.includes("hola") ||
-        t.includes("buenas")
+        texto === "hola" ||
+        texto === "hola emmet" ||
+        texto.includes("buenas")
     ) {
-
-        happy();
 
         speak(
             "¡Hola! Soy Emmet. ¿Qué hacemos?"
@@ -420,13 +299,10 @@ function answer(text) {
     }
 
 
-    /* NOMBRE */
-
     if (
-        t.includes("cómo te llamas") ||
-        t.includes("como te llamas") ||
-        t.includes("quién eres") ||
-        t.includes("quien eres")
+        texto.includes("cómo te llamas") ||
+        texto.includes("como te llamas") ||
+        texto.includes("tu nombre")
     ) {
 
         speak(
@@ -437,26 +313,20 @@ function answer(text) {
     }
 
 
-    /* CAPACIDADES */
-
     if (
-        t.includes("qué puedes hacer") ||
-        t.includes("que puedes hacer")
+        texto.includes("qué puedes hacer") ||
+        texto.includes("que puedes hacer")
     ) {
 
         speak(
-            "Puedo escucharte, hablar contigo y buscar cosas en Google."
+            "Puedo escucharte, hablar contigo y abrir Gemini para buscar información."
         );
 
         return;
     }
 
 
-    /* GRACIAS */
-
-    if (t.includes("gracias")) {
-
-        happy();
+    if (texto.includes("gracias")) {
 
         speak(
             "¡De nada!"
@@ -466,11 +336,9 @@ function answer(text) {
     }
 
 
-    /* ADIÓS */
-
     if (
-        t.includes("adiós") ||
-        t.includes("adios")
+        texto === "adiós" ||
+        texto === "adios"
     ) {
 
         speak(
@@ -481,18 +349,21 @@ function answer(text) {
     }
 
 
-    /* RESPUESTA NORMAL */
+    /*
+       RESPUESTA TEMPORAL
+
+       Aquí NO fingimos que Emmet tiene
+       una IA completa todavía.
+    */
 
     speak(
-        "He escuchado: " +
-        text +
-        ". Todavía estoy aprendiendo."
+        "He entendido lo que has dicho. Si quieres información sobre eso, puedes decir: busca en Gemini, seguido de tu pregunta."
     );
 }
 
 
 /* =========================
-        RECONOCIMIENTO
+   RECONOCIMIENTO DE VOZ
 ========================= */
 
 function createRecognition() {
@@ -501,119 +372,107 @@ function createRecognition() {
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
-
     if (!SpeechRecognition) {
 
         statusText.textContent =
             "Este navegador no permite reconocimiento de voz.";
 
+        speak(
+            "Este navegador no permite reconocimiento de voz."
+        );
+
         return null;
     }
 
+    const r = new SpeechRecognition();
 
-    const rec =
-        new SpeechRecognition();
-
-
-    rec.lang = "es-ES";
-
-    rec.continuous = false;
-
-    rec.interimResults = false;
+    r.lang = "es-ES";
+    r.continuous = false;
+    r.interimResults = false;
+    r.maxAlternatives = 1;
 
 
-    rec.onstart = () => {
+    r.onstart = () => {
 
-        listening = true;
+        if (!speaking) {
 
-        listeningFace();
+            emmet.classList.add("listening");
 
-        statusText.textContent =
-            "Escuchando...";
+            statusText.textContent =
+                "Escuchando...";
 
+        }
     };
 
 
-    rec.onresult = (event) => {
+    r.onresult = async (event) => {
 
         const text =
-            event.results[0][0].transcript;
+            event.results[0][0].transcript.trim();
 
-
-        console.log(
-            "Has dicho:",
-            text
-        );
-
-
-        listening = false;
-
-        processingFace();
+        emmet.classList.remove("listening");
 
         statusText.textContent =
-            "Procesando...";
+            "Has dicho: " + text;
 
-
-        answer(text);
-
+        await procesarTexto(text);
     };
 
 
-    rec.onerror = (event) => {
+    r.onerror = (event) => {
 
         console.log(
-            "Error de voz:",
+            "Error de reconocimiento:",
             event.error
         );
 
-        listening = false;
-
-        normal();
-
+        emmet.classList.remove("listening");
 
         if (
-            event.error === "not-allowed"
+            active &&
+            !speaking
         ) {
 
             statusText.textContent =
-                "Permite el micrófono.";
+                "No te he entendido.";
 
-            return;
+            setTimeout(() => {
+
+                startListening();
+
+            }, 1000);
         }
+    };
 
 
-        statusText.textContent =
-            "No te he escuchado.";
+    r.onend = () => {
+
+        emmet.classList.remove("listening");
 
     };
 
 
-    rec.onend = () => {
-
-        listening = false;
-
-    };
-
-
-    return rec;
+    return r;
 }
 
 
 /* =========================
-        ESCUCHAR
+   EMPEZAR A ESCUCHAR
 ========================= */
 
 function startListening() {
 
-    if (!recognition)
-        return;
+    if (!active) return;
 
-    if (listening)
-        return;
+    if (speaking) return;
 
-    if (window.speechSynthesis.speaking)
-        return;
+    if (!recognition) {
 
+        recognition =
+            createRecognition();
+    }
+
+    if (!recognition) return;
 
     try {
 
@@ -621,39 +480,66 @@ function startListening() {
 
     } catch (error) {
 
-        console.log(error);
-
+        console.log(
+            "No se pudo iniciar el micrófono:",
+            error
+        );
     }
 }
 
 
 /* =========================
-        ACTIVAR
+   ACTIVAR EMMET
 ========================= */
 
-startButton.onclick = () => {
+activateButton.addEventListener(
+    "click",
+    () => {
 
-    startButton.style.display =
-        "none";
+        active = true;
+
+        activateButton.textContent =
+            "EMMET ACTIVADO";
+
+        activateButton.disabled = true;
+
+        statusText.textContent =
+            "Iniciando Emmet...";
+
+        speak(
+            "Hola. Soy Emmet. Ya estoy listo."
+        );
+    }
+);
 
 
-    recognition =
-        createRecognition();
+/* =========================
+   PARPADEO
+========================= */
 
+function blink() {
 
-    if (!recognition)
-        return;
+    const leftEye =
+        document.getElementById("leftEye");
 
+    const rightEye =
+        document.getElementById("rightEye");
 
-    statusText.textContent =
-        "Emmet iniciando...";
+    leftEye.classList.add("blink");
+    rightEye.classList.add("blink");
 
+    setTimeout(() => {
 
-    speak(
-        "Hola. Soy Emmet. Ya estoy preparado."
-    );
+        leftEye.classList.remove("blink");
+        rightEye.classList.remove("blink");
 
-};
+    }, 150);
+}
+
+setInterval(
+    blink,
+    3500
+);
 
 </script>
 
