@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-
     if (req.method !== "POST") {
         return res.status(405).json({
             error: "Método no permitido"
@@ -7,12 +6,10 @@ export default async function handler(req, res) {
     }
 
     try {
-
         const { messages, pregunta } = req.body || {};
 
         let historial = messages;
 
-        // Compatibilidad con tu versión anterior
         if (!Array.isArray(historial)) {
             historial = [
                 {
@@ -31,44 +28,50 @@ export default async function handler(req, res) {
             });
         }
 
-        const apiKey = process.env.GROQ_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
             return res.status(500).json({
-                error: "Falta GROQ_API_KEY en las variables de entorno."
+                error: "Falta GEMINI_API_KEY en las variables de entorno."
             });
         }
 
-        const mensajes = [
-            {
-                role: "system",
-                content:
-                    "Tu nombre es Emmet. Eres un asistente de voz personal. " +
-                    "Habla de forma natural, cercana y clara. " +
-                    "Responde en el mismo idioma que use la persona. " +
-                    "Si te hablan en español, responde en español. " +
-                    "Si te hablan en catalán, responde en catalán. " +
-                    "Sé natural y breve porque tus respuestas serán habladas. " +
-                    "No uses listas enormes ni explicaciones innecesariamente largas."
-            },
-            ...historial.slice(-20)
-        ];
+        const systemPrompt =
+            "Tu nombre es Emmet. Eres un asistente de voz personal. " +
+            "Habla de forma natural, cercana y clara. " +
+            "Responde en el mismo idioma que use la persona. " +
+            "Si te hablan en español, responde en español. " +
+            "Si te hablan en catalán, responde en catalán. " +
+            "Sé natural y breve porque tus respuestas serán habladas.";
+
+        const contents = historial.slice(-20).map(m => ({
+            role: m.role === "assistant" ? "model" : "user",
+            parts: [
+                {
+                    text: String(m.content || "")
+                }
+            ]
+        }));
 
         const respuesta = await fetch(
-            "https://api.groq.com/openai/v1/chat/completions",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
             {
                 method: "POST",
 
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`
+                    "x-goog-api-key": apiKey
                 },
 
                 body: JSON.stringify({
-                    model: "openai/gpt-oss-120b",
-                    messages: mensajes,
-                    temperature: 0.7,
-                    max_completion_tokens: 1000
+                    systemInstruction: {
+                        parts: [
+                            {
+                                text: systemPrompt
+                            }
+                        ]
+                    },
+                    contents
                 })
             }
         );
@@ -76,23 +79,21 @@ export default async function handler(req, res) {
         const datos = await respuesta.json();
 
         if (!respuesta.ok) {
-
-            console.error("ERROR GROQ:", datos);
+            console.error("ERROR GEMINI:", datos);
 
             return res.status(respuesta.status).json({
                 error:
                     datos?.error?.message ||
-                    "Error de Groq"
+                    "Error de Gemini"
             });
         }
 
         const texto =
-            datos?.choices?.[0]?.message?.content
-                ?.trim();
+            datos?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
         if (!texto) {
             return res.status(502).json({
-                error: "Groq no devolvió una respuesta."
+                error: "Gemini no devolvió una respuesta."
             });
         }
 
@@ -101,7 +102,6 @@ export default async function handler(req, res) {
         });
 
     } catch (error) {
-
         console.error("ERROR API:", error);
 
         return res.status(500).json({
