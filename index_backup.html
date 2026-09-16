@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -202,16 +201,6 @@ button:active {
 }
 
 
-/* =====================================================
-   MODO NINJA
-===================================================== */
-
-.ninja .ojo {
-
-    opacity: 0.15;
-
-    box-shadow: none;
-}
 
 
 /* =====================================================
@@ -410,11 +399,35 @@ let hablando = false;
 
 let pensando = false;
 
-let modoNinja = false;
 
 let mapa = null;
 
 let temporizadorSilencio = null;
+
+/* =====================================================
+   MEMORIA DE CONVERSACIÓN
+===================================================== */
+
+const historialConversacion = [
+    {
+        role: "system",
+        content: `
+Eres Emmet, un asistente de voz personal.
+Habla de forma natural, clara y breve.
+Puedes entender español y catalán.
+
+Usa el contexto de la conversación para entender referencias como:
+"¿y cuándo?", "¿y él?", "¿qué pasó después?", etc.
+Relaciona esas preguntas con el tema anterior.
+No eres un diccionario: comprende el significado y el contexto.
+
+Reglas especiales:
+- Si el usuario dice "Magda", responde "Hola mamá".
+- Si dice "Gerard" o "Geri", responde "Ese es mi creador".
+- Si dice "Emmet saluda", responde "Hola".
+`
+    }
+];
 
 
 /* =====================================================
@@ -432,9 +445,6 @@ function estadoNormal() {
 
 
 function estadoEscuchando() {
-
-    if (modoNinja)
-        return;
 
     emmet.className =
         "escuchando";
@@ -586,13 +596,8 @@ function hablar(texto) {
                 estadoNormal();
 
 
-                if (
-                    emmetActivo &&
-                    !modoNinja
-                ) {
-
+                if (emmetActivo) {
                     iniciarEscucha();
-
                 }
 
 
@@ -613,13 +618,8 @@ function hablar(texto) {
                 estadoNormal();
 
 
-                if (
-                    emmetActivo &&
-                    !modoNinja
-                ) {
-
+                if (emmetActivo) {
                     iniciarEscucha();
-
                 }
 
 
@@ -671,14 +671,8 @@ if (SpeechRecognition) {
     reconocimiento.onstart =
         () => {
 
-            if (
-                !hablando &&
-                !pensando &&
-                !modoNinja
-            ) {
-
+            if (!hablando && !pensando) {
                 estadoEscuchando();
-
             }
 
         };
@@ -759,18 +753,8 @@ if (SpeechRecognition) {
             }
 
 
-            if (
-                emmetActivo &&
-                !hablando &&
-                !pensando &&
-                !modoNinja
-            ) {
-
-                setTimeout(
-                    iniciarEscucha,
-                    500
-                );
-
+            if (emmetActivo && !hablando && !pensando) {
+                setTimeout(iniciarEscucha, 500);
             }
 
         };
@@ -779,18 +763,8 @@ if (SpeechRecognition) {
     reconocimiento.onend =
         () => {
 
-            if (
-                emmetActivo &&
-                !hablando &&
-                !pensando &&
-                !modoNinja
-            ) {
-
-                setTimeout(
-                    iniciarEscucha,
-                    300
-                );
-
+            if (emmetActivo && !hablando && !pensando) {
+                setTimeout(iniciarEscucha, 300);
             }
 
         };
@@ -812,10 +786,6 @@ function iniciarEscucha() {
 
     if (pensando)
         return;
-
-    if (modoNinja)
-        return;
-
 
     if (!reconocimiento) {
 
@@ -885,100 +855,6 @@ async function procesarTexto(
         "Comando:",
         t
     );
-
-
-    /* =================================================
-       SALIR DEL MODO NINJA
-    ================================================= */
-
-    if (
-        modoNinja &&
-        (
-            t.includes("modo ninja") ||
-            t.includes("desactiva ninja") ||
-            t.includes("desactivar ninja") ||
-            t.includes("sal de ninja") ||
-            t.includes("salir del modo ninja") ||
-            t.includes("quita el modo ninja")
-        )
-    ) {
-
-        modoNinja =
-            false;
-
-
-        emmet.className =
-            "";
-
-
-        estado.textContent =
-            "Emmet";
-
-
-        await hablar(
-            "Modo ninja desactivado."
-        );
-
-
-        return;
-
-    }
-
-
-    /* =================================================
-       ACTIVAR MODO NINJA
-    ================================================= */
-
-    if (
-        !modoNinja &&
-        (
-            t.includes("modo ninja") ||
-            t.includes("modo silencioso") ||
-            t.includes("silencio emmet")
-        )
-    ) {
-
-        modoNinja =
-            true;
-
-
-        if (reconocimiento) {
-
-            try {
-
-                reconocimiento.abort();
-
-            } catch(e) {}
-
-        }
-
-
-        speechSynthesis.cancel();
-
-
-        emmet.className =
-            "ninja";
-
-
-        estado.textContent =
-            "Modo ninja";
-
-
-        return;
-
-    }
-
-
-    /* =================================================
-       IGNORAR TODO EN NINJA
-    ================================================= */
-
-    if (modoNinja) {
-
-        return;
-
-    }
-
 
     /* =================================================
        MAGDA
@@ -1195,103 +1071,84 @@ async function preguntarGroq(
     pregunta
 ) {
 
-    pensando =
-        true;
-
-
+    pensando = true;
     estadoPensando();
 
-
     if (reconocimiento) {
-
-        try {
-
-            reconocimiento.abort();
-
-        } catch(e) {}
-
+        try { reconocimiento.abort(); } catch(e) {}
     }
 
+    historialConversacion.push({
+        role: "user",
+        content: pregunta
+    });
+
+    /* Conservamos las últimas intervenciones para mantener contexto. */
+    const mensajes = [
+        historialConversacion[0],
+        ...historialConversacion.slice(-20)
+    ];
 
     try {
 
-        const respuesta =
-            await fetch(
-                "/api/groq",
-                {
-                    method: "POST",
+        const respuesta = await fetch(
+            "/api/groq",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    messages: mensajes
+                })
+            }
+        );
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-                            pregunta:
-                                pregunta
-                        })
-                }
-            );
-
-
-        const datos =
-            await respuesta.json();
-
+        const datos = await respuesta.json();
 
         if (!respuesta.ok) {
-
-            console.error(
-                datos
-            );
-
-
-            pensando =
-                false;
-
-
+            console.error(datos);
+            pensando = false;
             await hablar(
                 "Ha ocurrido un error con mi conexión."
             );
-
-
             return;
-
         }
 
-
         const respuestaTexto =
-            datos.respuesta;
+            datos.respuesta || datos.response;
 
+        if (!respuestaTexto) {
+            throw new Error("Groq no devolvió texto");
+        }
 
-        pensando =
-            false;
+        historialConversacion.push({
+            role: "assistant",
+            content: respuestaTexto
+        });
 
-
-        await hablar(
-            respuestaTexto
-        );
-
+        pensando = false;
+        await hablar(respuestaTexto);
 
     } catch(error) {
 
-        console.error(
-            error
-        );
+        console.error(error);
+        pensando = false;
 
-
-        pensando =
-            false;
-
+        /* Quitamos la pregunta si no pudo procesarse. */
+        if (
+            historialConversacion.length > 1 &&
+            historialConversacion[historialConversacion.length - 1].role === "user"
+        ) {
+            historialConversacion.pop();
+        }
 
         await hablar(
             "No puedo conectar con mi cerebro ahora mismo."
         );
-
     }
 
 }
-
 
 /* =====================================================
    MAPS
@@ -1476,10 +1333,7 @@ function iniciarTemporizadorSilencio() {
         return;
 
 
-    if (modoNinja)
-        return;
-
-
+    
     temporizadorSilencio =
         setTimeout(
             async () => {
@@ -1487,8 +1341,7 @@ function iniciarTemporizadorSilencio() {
                 if (
                     emmetActivo &&
                     !hablando &&
-                    !pensando &&
-                    !modoNinja
+                    !pensando 
                 ) {
 
                     const dato =
